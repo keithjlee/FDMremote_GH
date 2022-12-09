@@ -7,14 +7,14 @@ using FDMremote.Optimization;
 
 namespace FDMremote.GH_Optimization
 {
-    public class ObjectiveTarget : GH_Component
+    public class ObjectivePerformance : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ObjectiveTarget class.
+        /// Initializes a new instance of the ObjectivePerformance class.
         /// </summary>
-        public ObjectiveTarget()
-          : base("OBJTarget", "Target",
-              "Target matching objective function",
+        public ObjectivePerformance()
+          : base("OBJPerformance", "FL",
+              "Sum of internal forces times lengths",
               "FDMremote", "Objective Functions")
         {
         }
@@ -32,7 +32,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("OBJTarget", "OBJ", "Target Objective Function", GH_ParamAccess.item);
+            pManager.AddGenericParameter("OBJPerformance", "OBJ", "Performance Objective Function", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -45,10 +45,9 @@ namespace FDMremote.GH_Optimization
 
             if (!DA.GetData(0, ref weight)) return;
 
-            OBJTarget obj = new OBJTarget(weight);
+            OBJPerformance obj = new OBJPerformance(weight);
 
             DA.SetData(0, obj);
-
         }
 
         /// <summary>
@@ -69,7 +68,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("6AA55256-288F-49A6-9648-5314691BB659"); }
+            get { return new Guid("D11889BC-9F3F-4CD7-9767-2C771B1E9DF9"); }
         }
     }
 }

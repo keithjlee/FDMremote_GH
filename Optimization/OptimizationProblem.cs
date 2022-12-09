@@ -106,6 +106,18 @@ namespace FDMremote.Optimization
                     MinLength = obj0.MinLength;
                 }
             }
+
+            //normalize
+            double totalSum = 0;
+            foreach (double val in OBJweights)
+            {
+                totalSum += val;
+            }
+
+            for (int i = 0; i < OBJweights.Count; i++)
+            {
+                OBJweights[i] /= totalSum;
+            }
         }
 
         private void ExtractPXYZ(List<Vector3d> Loads)
