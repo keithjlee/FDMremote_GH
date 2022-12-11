@@ -51,7 +51,7 @@ namespace FDMremote.GH_Analysis
             Network fdmNetwork = new Network();
             List<Vector3d> loads = new List<Vector3d>();
             double tol = 1.0;
-
+            
             if (!DA.GetData(0, ref fdmNetwork)) return;
             if (!DA.GetDataList(1, loads)) return;
             if (!DA.GetData(2, ref tol)) return;
