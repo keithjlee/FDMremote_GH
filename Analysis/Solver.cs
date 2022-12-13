@@ -103,6 +103,25 @@ namespace FDMremote.Analysis
             return curves;
         }
 
+        public static List<Curve> NewCurves(Network fdm, List<Point3d> points)
+        {
+            // make curves
+            List<Curve> curves = new List<Curve>();
+            var indices = fdm.Indices;
+            for (int i = 0; i < fdm.Ne; i++)
+            {
+                var index = indices[i];
+                var p1 = points[index[0]];
+                var p2 = points[index[1]];
+
+                var line = new LineCurve(p1, p2);
+
+                curves.Add(line);
+            }
+
+            return curves;
+        }
+
         /// <summary>
         /// Generates a complete list of ordered points to reflect a solved network
         /// </summary>

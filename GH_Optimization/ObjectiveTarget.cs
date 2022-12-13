@@ -13,8 +13,8 @@ namespace FDMremote.GH_Optimization
         /// Initializes a new instance of the ObjectiveTarget class.
         /// </summary>
         public ObjectiveTarget()
-          : base("OBJTarget", "Target",
-              "Target matching objective function",
+          : base("OBJTargetShape", "OBJTarget",
+              "Minimize the solved nodal distances to target nodes.",
               "FDMremote", "Objective Functions")
         {
         }
@@ -42,8 +42,7 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             double weight = 1.0;
-
-            if (!DA.GetData(0, ref weight)) return;
+            DA.GetData(0, ref weight);
 
             OBJTarget obj = new OBJTarget(weight);
 
@@ -54,15 +53,7 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon
-        {
-            get
-            {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
-            }
-        }
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJtarget;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.

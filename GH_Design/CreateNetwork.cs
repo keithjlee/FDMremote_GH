@@ -94,6 +94,7 @@ namespace FDMremote
             //DA.SetDataList(2, fdmNetwork.Anchors);
             //DA.SetData(3, fdmNetwork);
             DA.SetData(0, fdmNetwork);
+            //ExpireSolution(true);
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace FDMremote
         /// You can add image files to your project resources and access them like this:
         /// return Resources.IconForThisComponent;
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.CreateNetwork;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.Create;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 

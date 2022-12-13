@@ -30,7 +30,7 @@ namespace FDMremote.GH_Optimization
             pManager.AddNumberParameter("Upper Bound", "UB", "Upper bound of force densities", GH_ParamAccess.item, 100);
             pManager.AddNumberParameter("Absolute Tolerance", "AbsTol", "Absolute stopping tolerance", GH_ParamAccess.item, 1e-3);
             pManager.AddNumberParameter("Relative Tolerance", "RelTol", "Relative stopping tolerance", GH_ParamAccess.item, 1e-3);
-            pManager.AddIntegerParameter("Maximum Iterations", "MaxIter", "Maximum number of iterations", GH_ParamAccess.item, 300);
+            pManager.AddIntegerParameter("Maximum Iterations", "MaxIter", "Maximum number of iterations", GH_ParamAccess.item, 500);
             pManager.AddIntegerParameter("Update Frequency", "Frequency", "Frequency of return reports", GH_ParamAccess.item, 10);
             pManager.AddBooleanParameter("Show Iterations", "ShowIter", "Show intermittent solutions", GH_ParamAccess.item, true);
         }
@@ -50,24 +50,34 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             //initialize
-            List<OBJ> objs = new List<OBJ> { new OBJTarget(1.0) };
+            List<OBJ> objs = new List<OBJ>();
             double lb = 0.1;
             double ub = 100.0;
             double abstol = 1e-3;
             double reltol = 1e-3;
-            int maxiter = 300;
+            int maxiter = 500;
             int freq = 10;
             bool show = true;
 
             //assign
-            //if (!DA.GetDataList(0, objs)) return;
-            if (!DA.GetData(1, ref lb)) return;
-            if (!DA.GetData(2, ref ub)) return;
-            if (!DA.GetData(3, ref abstol)) return;
-            if (!DA.GetData(4, ref reltol)) return;
-            if (!DA.GetData(5, ref maxiter)) return;
-            if (!DA.GetData(6, ref freq)) return;
-            if (!DA.GetData(7, ref show)) return;
+            if (!DA.GetDataList(0, objs)) return;
+            //DA.GetDataList(0, objs);
+            DA.GetData(1, ref lb);
+            DA.GetData(2, ref ub);
+            DA.GetData(3, ref abstol);
+            DA.GetData(4, ref reltol);
+            DA.GetData(5, ref maxiter);
+            DA.GetData(6, ref freq);
+            DA.GetData(7, ref show);
+
+
+            //if (!DA.GetData(1, ref lb)) return;
+            //if (!DA.GetData(2, ref ub)) return;
+            //if (!DA.GetData(3, ref abstol)) return;
+            //if (!DA.GetData(4, ref reltol)) return;
+            //if (!DA.GetData(5, ref maxiter)) return;
+            //if (!DA.GetData(6, ref freq)) return;
+            //if (!DA.GetData(7, ref show)) return;
 
             //create parameter
             OBJParameters objparams = new OBJParameters(lb, ub, abstol, reltol, objs, show, freq, maxiter);

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace FDMremote.Optimization
 {
-    internal class OBJPerformance : OBJ
+    internal class OBJforcevariation : OBJ
     {
-        public OBJPerformance(double weight)
+        public OBJforcevariation(double weight)
         {
-            this.OBJID = 3;
+            this.OBJID = 2;
             this.Weight = weight;
         }
     }

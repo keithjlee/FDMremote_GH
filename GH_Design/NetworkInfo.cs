@@ -71,7 +71,7 @@ namespace FDMremote
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.NetworkInfo;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.Information;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.

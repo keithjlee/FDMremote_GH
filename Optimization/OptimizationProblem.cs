@@ -10,6 +10,7 @@ namespace FDMremote.Optimization
 {
     internal class OptimizationProblem
     {
+        public bool Valid;
         //Objective functions
         public List<int> OBJids;
         public List<double> OBJweights;
@@ -60,6 +61,7 @@ namespace FDMremote.Optimization
             NFjulia(network);
             ExtractPXYZ(P);
             ExtractOBJs(objparams);
+            Valid = true;
         }
 
         private void ExtractXYZ(Network network)
@@ -99,12 +101,6 @@ namespace FDMremote.Optimization
                 var obj = objparams.Objectives[i];
                 OBJids.Add(obj.OBJID);
                 OBJweights.Add(obj.Weight);
-
-                if (obj.OBJID == 1)
-                {
-                    var obj0 = (OBJMinLength)obj;
-                    MinLength = obj0.MinLength;
-                }
             }
 
             //normalize

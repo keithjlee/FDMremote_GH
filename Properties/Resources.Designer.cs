@@ -63,9 +63,9 @@ namespace FDMremote.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap AnalyzeNetwork {
+        internal static System.Drawing.Bitmap Analyze {
             get {
-                object obj = ResourceManager.GetObject("AnalyzeNetwork", resourceCulture);
+                object obj = ResourceManager.GetObject("Analyze", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace FDMremote.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap CreateNetwork {
+        internal static System.Drawing.Bitmap Create {
             get {
-                object obj = ResourceManager.GetObject("CreateNetwork", resourceCulture);
+                object obj = ResourceManager.GetObject("Create", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +83,59 @@ namespace FDMremote.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap NetworkInfo {
+        internal static System.Drawing.Bitmap Information {
             get {
-                object obj = ResourceManager.GetObject("NetworkInfo", resourceCulture);
+                object obj = ResourceManager.GetObject("Information", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap OBJforce {
+            get {
+                object obj = ResourceManager.GetObject("OBJforce", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap OBJforcedev {
+            get {
+                object obj = ResourceManager.GetObject("OBJforcedev", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap OBJlength {
+            get {
+                object obj = ResourceManager.GetObject("OBJlength", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap OBJtarget {
+            get {
+                object obj = ResourceManager.GetObject("OBJtarget", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Optimize {
+            get {
+                object obj = ResourceManager.GetObject("Optimize", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

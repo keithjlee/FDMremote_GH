@@ -3,26 +3,28 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using FDMremote.Utilities;
 using FDMremote.Optimization;
-using FDMremote.Analysis;
 using Newtonsoft.Json;
+using FDMremote.Utilities;
 using WebSocketSharp;
-using System.Threading;
 
 namespace FDMremote.GH_Optimization
 {
-    public class Optimize : GH_Component
+    public class OptimizeDebug : GH_Component
     {
-        Network inputnetwork = new Network();
-        private string _optiminfo = "";
-        private string _status = "";
-        private readonly object _lock = new object();
+        bool Finished = false;
+        int Iter = 0;
+        double Loss = 0.0;
+        List<double> Q = new List<double>();
+        List<Curve> Curves = new List<Curve>();
+        Network network = new Network();
+        Network outNetwork = new Network();
+        string optiminfo = "";
         /// <summary>
         /// Initializes a new instance of the Optimize class.
         /// </summary>
-        public Optimize()
-          : base("OptimizeRemote", "Optimize",
+        public OptimizeDebug()
+          : base("OptimizeDebug", "Optimize",
               "Use FDMremote.jl to optimize the network",
               "FDMremote", "Optimization")
         {
@@ -36,7 +38,7 @@ namespace FDMremote.GH_Optimization
             pManager.AddGenericParameter("FDM Network", "Network", "Network to Optimize", GH_ParamAccess.item); // Network
             pManager.AddGenericParameter("Optimization Parameters", "Params", "Objective functions, tolerances, etc.", GH_ParamAccess.item); // all other parameters
             pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Connect", "Connect", "Open/Close connection", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Connect", "Connect", "Open/Close connection", GH_ParamAccess.item, true);
             pManager.AddTextParameter("Host", "Host", "Host address", GH_ParamAccess.item, "127.0.0.1");
             pManager.AddTextParameter("Port", "Port", "Port ID", GH_ParamAccess.item, "2000");
         }
@@ -46,8 +48,16 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            //pManager.AddGenericParameter("FDM Network", "Network", "Optimized network", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("Objective function value", "Loss", "Result of optimization", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("Optimized variables", "X", "Design variables of optimized solution", GH_ParamAccess.list);
+            //pManager.AddTextParameter("Output", "Out", "TestOutput", GH_ParamAccess.item);
+            //pManager.AddBooleanParameter("Optimized", "Complete", "Has the optimization completed?", GH_ParamAccess.item);
+            //pManager.AddGenericParameter("Optimized Network", "Network", "New optimized network", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("Current Q", "q", "Optimized force density values", GH_ParamAccess.list);
+            //pManager.AddNumberParameter("Current Loss", "f(q)", "Final objective function value", GH_ParamAccess.item);
+            //pManager.AddIntegerParameter("Number of Iterations", "n_iter", "Total number of iterations", GH_ParamAccess.item);
             pManager.AddTextParameter("Data", "Data", "Optimization data", GH_ParamAccess.item);
-            pManager.AddTextParameter("Status", "Status", "Status", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -58,15 +68,14 @@ namespace FDMremote.GH_Optimization
         {
             //initialize
             //Network network = new Network();
-            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJTarget(1.0)}, true, 10, 500);
+            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJTarget(1.0) }, true, 10, 500);
             List<Vector3d> loads = new List<Vector3d>();
-            bool live = true;
+            bool status = true;
 
-            
-            if (!DA.GetData(0, ref inputnetwork)) return;
+            if (!DA.GetData(0, ref network)) return;
             DA.GetData(1, ref objparams);
             if (!DA.GetDataList(2, loads)) return;
-            if (!DA.GetData(3, ref live)) return;
+            if (!DA.GetData(3, ref status)) return;
 
             //connection info
             string host = "";
@@ -80,79 +89,64 @@ namespace FDMremote.GH_Optimization
             //check that load count is correct
             if (loads.Count != 1)
             {
-                if (loads.Count != inputnetwork.N.Count)
+                if (loads.Count != network.N.Count)
                 {
                     this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Number of loads must be 1 or equal to number of free nodes");
                 }
             }
 
             //make problem
-
-            OptimizationProblem optimprob = new OptimizationProblem(inputnetwork, objparams, loads);
+            OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
 
             //just testing
-            string data = JsonConvert.SerializeObject(optimprob);
+            if (status)
+            {
+                ClearData();
+                string data = JsonConvert.SerializeObject(optimprob);
+                DA.SetData(0, data);
+                //this.ExpireSolution(true);
+            }
+            else
+            {
+                ClearData();
+                DA.SetData(0, "CLOSE");
+                //this.ExpireSolution(true);
+            }
+            
 
-            //if (live)
+
+            //loop
+            //using (WebSocket ws = new WebSocket(address))
             //{
-            //    var ws = new WebSocket(address);
             //    ws.OnMessage += Ws_OnMessage;
             //    ws.Connect();
-            //    ws.Send(data);
-            //}
-            lock (_lock)
-            {
-                DA.SetData(0, _optiminfo);
-                DA.SetData(1, _status);
-            }
 
-            var ws = new WebSocket(address);
-            ws.OnMessage += Ws_OnMessage;
-            if (!live)
-            {
-                ws.Connect();
-                ws.Send(data);
-            }
-            //else
-            //{
-            //    ws.Connect();
-            //    ws.Send("CLOSE");
-            //    ws.Close();
+            //    DA.SetData(0, optiminfo);
             //}
         }
-
         private void Ws_OnMessage(object sender, MessageEventArgs e)
         {
-            lock (_lock)
-            {
-                 _optiminfo = e.Data;
-
-                var receiver = JsonConvert.DeserializeObject<Receiver>(e.Data);
-                if (receiver.Finished) _status = "FINISHED";
-                else _status = "ONGOING";
-
-            }
-
-            GH_Document doc = OnPingDocument();
-            //if (doc != null) doc.ScheduleSolution(10, ScheduleCallback);
+            optiminfo = e.Data;
         }
-
-        private void ScheduleCallback(GH_Document doc)
-        {
-            this.ExpireSolution(false);
-        }
-
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.Optimize;
+        protected override System.Drawing.Bitmap Icon
+        {
+            get
+            {
+                //You can add image files to your project resources and access them like this:
+                // return Resources.IconForThisComponent;
+                return null;
+            }
+        }
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("99C37348-2761-466F-BD63-2B2381150116"); }
+            get { return new Guid("35C14E73-6FE1-447D-BCED-27980386A096"); }
         }
     }
 }

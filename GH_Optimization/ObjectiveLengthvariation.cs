@@ -7,14 +7,14 @@ using FDMremote.Optimization;
 
 namespace FDMremote.GH_Optimization
 {
-    public class ObjectivePerformance : GH_Component
+    public class ObjectiveLengthvariation : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ObjectivePerformance class.
+        /// Initializes a new instance of the ObjectiveLengthvariation class.
         /// </summary>
-        public ObjectivePerformance()
-          : base("OBJPerformance", "FL",
-              "Sum of internal forces times lengths",
+        public ObjectiveLengthvariation()
+          : base("OBJLengthVariation", "OBJLength",
+              "Minimize the difference between the longest and shortest elements",
               "FDMremote", "Objective Functions")
         {
         }
@@ -32,7 +32,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("OBJPerformance", "OBJ", "Performance Objective Function", GH_ParamAccess.item);
+            pManager.AddGenericParameter("OBJTarget", "OBJ", "Length Objective Function", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -42,10 +42,9 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             double weight = 1.0;
+            DA.GetData(0, ref weight);
 
-            if (!DA.GetData(0, ref weight)) return;
-
-            OBJPerformance obj = new OBJPerformance(weight);
+            OBJlengthvariation obj = new OBJlengthvariation(weight);
 
             DA.SetData(0, obj);
         }
@@ -53,14 +52,14 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJforce;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJlength;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("D11889BC-9F3F-4CD7-9767-2C771B1E9DF9"); }
+            get { return new Guid("2F4C6C0C-8D39-4764-979C-FEF17F1DB38D"); }
         }
     }
 }
