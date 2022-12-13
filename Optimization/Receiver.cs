@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 
 namespace FDMremote.Optimization
 {
+    /// <summary>
+    /// Class to directly parse output JSON messages from server
+    /// </summary>
     internal class Receiver
     {
         public bool Finished;
@@ -17,10 +20,5 @@ namespace FDMremote.Optimization
         public List<double> Y;
         public List<double> Z;
         public List<double> Losstrace;
-        //public double[] Q;
-        //public double[] X;
-        //public double[] Y;
-        //public double[] Z;
-        //public double[] Losstrace;
     }
 }

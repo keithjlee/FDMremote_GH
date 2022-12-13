@@ -9,15 +9,15 @@ using Newtonsoft.Json;
 
 namespace FDMremote.GH_Optimization
 {
-    public class OptimizationResults : GH_Component
+    public class FDMreceive : GH_Component
     {
         List<Curve> curves;
         /// <summary>
         /// Initializes a new instance of the OptimizationResults class.
         /// </summary>
-        public OptimizationResults()
-          : base("OptimizationResults", "Results",
-              "Result of optimization",
+        public FDMreceive()
+          : base("FDMremote Receive", "FDMreceive",
+              "Recieve analyzed results from FDMremote.jl server",
               "FDMremote", "Optimization")
         {
         }
@@ -41,6 +41,7 @@ namespace FDMremote.GH_Optimization
             pManager.AddNumberParameter("Current Q", "q", "Optimized force density values", GH_ParamAccess.list);
             pManager.AddNumberParameter("Current Loss", "f(q)", "Final objective function value", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Number of Iterations", "n_iter", "Total number of iterations", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Loss History", "LossTrace", "Trace of f(q) over optimization duration", GH_ParamAccess.list);
             pManager.AddTextParameter("Data", "Data", "Optimization data", GH_ParamAccess.item);
         }
 
@@ -52,62 +53,48 @@ namespace FDMremote.GH_Optimization
         {
             // initialize
             Network network = new Network();
-            String msg = "";
-            Receiver receiver = new Receiver();
+            string msg = "";
+            Receiver receiver;
 
             // assign
-            ClearData();
             if (!DA.GetData(0, ref network)) return;
             if (!DA.GetData(1, ref msg)) return;
             if (msg == "CONNECTION ENDED") return;
 
             // extract indices
             List<int[]> indices = network.Indices;
+
             // deserialize
             receiver = JsonConvert.DeserializeObject<Receiver>(msg);
-            //JsonConvert.PopulateObject(info, receiver);
 
-            //dynamic JSONoutput = JsonConvert.DeserializeObject(info);
-
-            //var finished = JSONoutput["Finished"];
-            //var iter = (int)JSONoutput["Iter"];
-            //var loss = (double)JSONoutput["Loss"];
-            //var q = (List<double>)JSONoutput["Q"];
-            //var x = (List<double>)JSONoutput["X"];
-            //var y = (List<double>)JSONoutput["Y"];
-            //var z = (List<double>)JSONoutput["Z"];
-            //var losstrace = (List<double>)JSONoutput["Losstrace"];
-
+            // extract new nodal positions
             List<double> x = receiver.X;
             List<double> y = receiver.Y;
             List<double> z = receiver.Z;
 
-            // during intermittent analysis
-            //if (!receiver.Finished)
-            //{
-            //    curves = CurveMaker(indices, x, y, z);
-            //    DA.SetData(0, receiver.Finished);
-            //    DA.SetDataList(2, receiver.Q);
-            //    DA.SetData(3, receiver.Loss);
-            //    DA.SetData(4, receiver.Iter);
-            //    DA.SetData(5, msg);
-            //    ExpireSolution(true);
-            //}
-            //else
-            //{
-                curves = CurveMaker(indices, x, y, z);
-                DA.SetData(0, receiver.Finished);
-                DA.SetDataList(2, receiver.Q);
-                DA.SetData(3, receiver.Loss);
-                DA.SetData(4, receiver.Iter);
-                DA.SetData(5, msg);
+            // extract new curves
+            curves = CurveMaker(indices, x, y, z);
+            DA.SetData(0, receiver.Finished);
+            DA.SetDataList(2, receiver.Q);
+            DA.SetData(3, receiver.Loss);
+            DA.SetData(4, receiver.Iter);
+            DA.SetDataList(5, receiver.Losstrace);
+            DA.SetData(6, msg);
 
-                Network newnetwork = new Network(network.Anchors, curves, receiver.Q, network.Tolerance);
-                DA.SetData(1, newnetwork);
-                ExpireSolution(true);
-            //}
+            // generate new network
+            Network newnetwork = new Network(network.Anchors, curves, receiver.Q, network.Tolerance);
+            DA.SetData(1, newnetwork);
+            ExpireSolution(true);
         }
 
+        /// <summary>
+        /// Makes curves based on a set of indices and x,y,z data points
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
         private List<Curve> CurveMaker(List<int[]> indices, List<double> x, List<double> y, List<double> z)
         {
             List<Curve> curves = new List<Curve>();

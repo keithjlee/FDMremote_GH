@@ -15,6 +15,9 @@ namespace FDMremote.Optimization
         public List<int> OBJids;
         public List<double> OBJweights;
         public double MinLength;
+        public double MaxLength;
+        public double MinForce;
+        public double MaxForce;
 
         //optimization parameters
         public double LowerBound;
@@ -96,11 +99,24 @@ namespace FDMremote.Optimization
             OBJids = new List<int>();
             OBJweights = new List<double>();
 
+            // for each active objective
             for (int i = 0; i < objparams.Objectives.Count; i++)
             {
                 var obj = objparams.Objectives[i];
                 OBJids.Add(obj.OBJID);
                 OBJweights.Add(obj.Weight);
+
+                if (obj.OBJID == 4)
+                {
+                    var o = (OBJMinlength)obj;
+                    MinLength = o.Value;
+                }
+
+                if (obj.OBJID == 5)
+                {
+                    var o = (OBJMaxlength)obj;
+                    MaxLength = o.Value;
+                }
             }
 
             //normalize

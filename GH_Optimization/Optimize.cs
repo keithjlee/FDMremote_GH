@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Grasshopper;
 using Rhino.Geometry;
 using FDMremote.Utilities;
 using FDMremote.Optimization;
@@ -18,9 +19,13 @@ namespace FDMremote.GH_Optimization
         private string _optiminfo = "";
         private string _status = "";
         private readonly object _lock = new object();
+        private WebSocket ws;
+        public event EventHandler changed;
         /// <summary>
         /// Initializes a new instance of the Optimize class.
         /// </summary>
+        /// 
+
         public Optimize()
           : base("OptimizeRemote", "Optimize",
               "Use FDMremote.jl to optimize the network",
@@ -93,53 +98,61 @@ namespace FDMremote.GH_Optimization
             //just testing
             string data = JsonConvert.SerializeObject(optimprob);
 
-            //if (live)
+            //update output data
+            //lock (_lock)
             //{
-            //    var ws = new WebSocket(address);
-            //    ws.OnMessage += Ws_OnMessage;
-            //    ws.Connect();
-            //    ws.Send(data);
-            //}
-            lock (_lock)
-            {
                 DA.SetData(0, _optiminfo);
                 DA.SetData(1, _status);
-            }
+            //}
 
-            var ws = new WebSocket(address);
+            //initialize
+            ws = new WebSocket(address);
+            ws.WaitTime = new TimeSpan(0, 0, 2);
             ws.OnMessage += Ws_OnMessage;
+            ws.OnOpen += Ws_OnOpen;
+            ws.OnClose += Ws_OnClose;
+            ws.Connect();
+
+            //Send data to server
             if (!live)
             {
-                ws.Connect();
                 ws.Send(data);
             }
-            //else
-            //{
-            //    ws.Connect();
-            //    ws.Send("CLOSE");
-            //    ws.Close();
-            //}
+        }
+        
+        private void Ws_OnClose(object sender, CloseEventArgs e)
+        {
+            onChanged();
+        }
+
+        private void Ws_OnOpen(object sender, EventArgs e)
+        {
+            onChanged();
         }
 
         private void Ws_OnMessage(object sender, MessageEventArgs e)
         {
             lock (_lock)
             {
+                //ClearData();
                  _optiminfo = e.Data;
 
                 var receiver = JsonConvert.DeserializeObject<Receiver>(e.Data);
-                if (receiver.Finished) _status = "FINISHED";
+                if (receiver.Finished)
+                {
+                    _status = "FINISHED";
+                    ws.Close();
+                    ws.Connect();
+                } 
                 else _status = "ONGOING";
 
             }
-
-            GH_Document doc = OnPingDocument();
-            //if (doc != null) doc.ScheduleSolution(10, ScheduleCallback);
         }
 
-        private void ScheduleCallback(GH_Document doc)
+        protected virtual void onChanged()
         {
-            this.ExpireSolution(false);
+            EventHandler handler = changed;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
 
         /// <summary>

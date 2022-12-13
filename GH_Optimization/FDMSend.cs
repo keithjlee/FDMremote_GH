@@ -10,7 +10,7 @@ using WebSocketSharp;
 
 namespace FDMremote.GH_Optimization
 {
-    public class OptimizeDebug : GH_Component
+    public class FDMsend : GH_Component
     {
         bool Finished = false;
         int Iter = 0;
@@ -23,9 +23,9 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Initializes a new instance of the Optimize class.
         /// </summary>
-        public OptimizeDebug()
-          : base("OptimizeDebug", "Optimize",
-              "Use FDMremote.jl to optimize the network",
+        public FDMsend()
+          : base("FDMremote Send", "FDMSend",
+              "send data to FDMremote.jl server",
               "FDMremote", "Optimization")
         {
         }
@@ -48,15 +48,6 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            //pManager.AddGenericParameter("FDM Network", "Network", "Optimized network", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("Objective function value", "Loss", "Result of optimization", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("Optimized variables", "X", "Design variables of optimized solution", GH_ParamAccess.list);
-            //pManager.AddTextParameter("Output", "Out", "TestOutput", GH_ParamAccess.item);
-            //pManager.AddBooleanParameter("Optimized", "Complete", "Has the optimization completed?", GH_ParamAccess.item);
-            //pManager.AddGenericParameter("Optimized Network", "Network", "New optimized network", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("Current Q", "q", "Optimized force density values", GH_ParamAccess.list);
-            //pManager.AddNumberParameter("Current Loss", "f(q)", "Final objective function value", GH_ParamAccess.item);
-            //pManager.AddIntegerParameter("Number of Iterations", "n_iter", "Total number of iterations", GH_ParamAccess.item);
             pManager.AddTextParameter("Data", "Data", "Optimization data", GH_ParamAccess.item);
         }
 
@@ -104,30 +95,14 @@ namespace FDMremote.GH_Optimization
                 ClearData();
                 string data = JsonConvert.SerializeObject(optimprob);
                 DA.SetData(0, data);
-                //this.ExpireSolution(true);
             }
             else
             {
                 ClearData();
                 DA.SetData(0, "CLOSE");
-                //this.ExpireSolution(true);
             }
+        }
             
-
-
-            //loop
-            //using (WebSocket ws = new WebSocket(address))
-            //{
-            //    ws.OnMessage += Ws_OnMessage;
-            //    ws.Connect();
-
-            //    DA.SetData(0, optiminfo);
-            //}
-        }
-        private void Ws_OnMessage(object sender, MessageEventArgs e)
-        {
-            optiminfo = e.Data;
-        }
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
