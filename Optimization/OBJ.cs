@@ -61,7 +61,7 @@ namespace FDMremote.Optimization
         public OBJMinlength(double value, double weight)
         {
             this.OBJID = 4;
-            Value = value;
+            this.Value = value;
             this.Weight = weight;
         }
     }
@@ -73,7 +73,31 @@ namespace FDMremote.Optimization
         public OBJMaxlength(double value, double weight)
         {
             this.OBJID = 5;
-            Value = value;
+            this.Value = value;
+            this.Weight = weight;
+        }
+    }
+
+    internal class OBJMinforce : OBJ
+    {
+        public double Value;
+
+        public OBJMinforce(double value, double weight)
+        {
+            this.OBJID = 6;
+            this.Value = value;
+            this.Weight = weight;
+        }
+    }
+
+    internal class OBJMaxforce : OBJ
+    {
+        public double Value;
+
+        public OBJMaxforce(double value, double weight)
+        {
+            this.OBJID = 7;
+            this.Value = value;
             this.Weight = weight;
         }
     }
