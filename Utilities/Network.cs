@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Rhino.Geometry;
 using Rhino.Collections;
-using Newtonsoft.Json;
 
 namespace FDMremote.Utilities
 {
@@ -33,7 +32,7 @@ namespace FDMremote.Utilities
                 ForceDensities.Add(1.0);
             }
 
-            GetNF(Tolerance);
+            Topologize(Anchors, Curves, Tolerance);
             ValidCheck();
         }
 
@@ -56,7 +55,7 @@ namespace FDMremote.Utilities
                 ForceDensities.Add(q);
             }
 
-            GetNF(Tolerance);
+            Topologize(Anchors, Curves, Tolerance);
             ValidCheck();
         }
 
@@ -93,9 +92,9 @@ namespace FDMremote.Utilities
                     ForceDensities.Add(q[0]);
                 }
             }
-            
 
-            GetNF(Tolerance);
+
+            Topologize(Anchors, Curves, Tolerance);
             ValidCheck();
         }
 
@@ -111,37 +110,19 @@ namespace FDMremote.Utilities
             Tolerance = other.Tolerance;
 
 
-            GetNF(Tolerance);
+            Topologize(Anchors, Curves, Tolerance);
             ValidCheck();
         }
 
-        public List<Point3d> Anchors { get;  set; }
-        public List<Curve> Curves { get; set; }
-        public List<double> ForceDensities { get; set; }
-        public double Tolerance { get; set; }
-        public List<Point3d> Points
+        public List<Point3d> Anchors;//input
+        public List<Curve> Curves;//input
+        public List<double> ForceDensities; // input
+        public double Tolerance; //input
+        public List<Point3d> Points; //Topologize
+        public List<double[]> XYZ; //Topologize
+        public List<int[]> Indices; //Topologize
+        public int Ne
         {
-            get
-            {
-                return GetPoints(Curves, Tolerance);
-            }
-        }
-        public List<double[]> XYZ
-        {
-            get
-            {
-                return GetXYZ(Points);
-            }
-        }
-        public List<int[]> Indices
-        {
-            get
-            {
-                return GetIndices(Curves, Points);
-            }
-        }
-        public int Ne 
-        { 
             get
             {
                 return Curves.Count;
@@ -154,96 +135,75 @@ namespace FDMremote.Utilities
                 return Points.Count;
             }
         }
-        public List<int> N;
-        public List<int> F;
-        public bool Valid;
+        public List<int> N; //Topologize
+        public List<int> F; //Topologize
+        public bool Valid; //ValidCheck()
 
-        /// <summary>
-        /// Extracts the list of all points in network
-        /// </summary>
-        private List<Point3d> GetPoints(List<Curve> curves, double tol)
+        private void Topologize(List<Point3d> anchors, List<Curve> edges, double tolerance)
         {
-            List<Point3d> duplicatedPoints = new List<Point3d>();
-            foreach (Curve curve in curves)
-            {
-                Point3d start = curve.PointAtStart;
-                Point3d end = curve.PointAtEnd;
-
-                duplicatedPoints.Add(start);
-                duplicatedPoints.Add(end);
-            }
-            Point3dList uniquePoints = new Point3dList(Point3d.CullDuplicates(duplicatedPoints, tol));
-
-            List<Point3d> uniquePointsList = new List<Point3d>(uniquePoints.ToArray());
-
-            return uniquePointsList;
-        }
-
-        /// <summary>
-        /// Generates the list of start/end indices for each element w/r/t order of Points 
-        /// </summary>
-        private List<int[]> GetIndices(List<Curve> curves, List<Point3d> points)
-        {
-            List<int[]> Indices = new List<int[]>();
-
-            foreach (Curve curve in curves)
-            {
-                int[] index = new int[2]; // initialize
-
-                Point3d startPoint = curve.PointAtStart;
-                int startIndex = Point3dList.ClosestIndexInList(points, startPoint);
-                index[0] = startIndex;
-
-                Point3d endPoint = curve.PointAtEnd;
-                int endIndex = Point3dList.ClosestIndexInList(points, endPoint);
-                index[1] = endIndex;
-
-                Indices.Add(index);
-            }
-
-            return Indices;
-        }
-
-        /// <summary>
-        /// Extracts the indices of free (N) and fixed nodes
-        /// </summary>
-        private void GetNF(double tol)
-        {
+            //initialize fields
+            Points = new List<Point3d>();
+            XYZ = new List<double[]>();
+            Indices = new List<int[]>();
             N = new List<int>();
             F = new List<int>();
 
-            // Point3dList anchorList = new Point3dList(Anchors);
+            //temporary variables
+            Point3dList anchorlist = new Point3dList(anchors);
+            Point3dList pointlist = new Point3dList();
 
-            for (int i = 0; i < Points.Count; i++)
+            foreach (Curve edge in edges)
             {
-                Point3d point = Points[i];
+                Point3d start = edge.PointAtStart;
+                Point3d end = edge.PointAtEnd;
+                int istart;
+                int iend;
 
-                if (point.DistanceTo(Point3dList.ClosestPointInList(Anchors, point)) < tol) F.Add(i);
-                else N.Add(i);
+                // analyze starting point
+                if (!pointlist.Contains(start))
+                {
+                    pointlist.Add(start);
+                    istart = pointlist.Count - 1;
 
-                //if (anchorList.Contains(point)) F.Add(i);
-                //else N.Add(i);
+                    if (WithinTolerance(anchorlist, start, tolerance)) F.Add(istart);
+                    else N.Add(istart);
+
+                    XYZ.Add(new double[] { start.X, start.Y, start.Z });
+                }
+                else
+                {
+                    istart = pointlist.ClosestIndex(start);
+                }
+
+                // analyze end point
+                if (!pointlist.Contains(end))
+                {
+                    pointlist.Add(end);
+                    iend = pointlist.Count - 1;
+
+                    if (WithinTolerance(anchorlist, end, tolerance)) F.Add(iend);
+                    else N.Add(iend);
+
+                    XYZ.Add(new double[] {end.X, end.Y, end.Z });
+                }
+                else
+                {
+                    iend = pointlist.ClosestIndex(end);
+                }
+
+                Indices.Add(new int[] { istart, iend });
+
             }
+
+            this.Points = new List<Point3d>(pointlist.ToArray());
         }
 
-
-
-        /// <summary>
-        /// List of arrays of XYZ positions
-        /// </summary>
-        /// <param name="points"></param>
-        /// <returns></returns>
-        public List<double[]> GetXYZ(List<Point3d> points)
+        private bool WithinTolerance(Point3dList points, Point3d point, double tolerance)
         {
-            List<double[]> result = new List<double[]>();
+            double dist = point.DistanceTo(Point3dList.ClosestPointInList(points, point));
 
-            foreach (Point3d point in points)
-            {
-                double[] xyz = new double[] { point.X, point.Y, point.Z };
-                result.Add(xyz);
-            } 
-
-            return result;
+            if (dist < tolerance) return true;
+            else return false;
         }
 
         private void ValidCheck()
@@ -259,15 +219,6 @@ namespace FDMremote.Utilities
 
             // all conditions pass
             else this.Valid = true;
-
-            //try
-            //{
-            //    bool validity = F.Count == Anchors.Count && F.Count + N.Count == Nn;
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new Exception("Something went wrong when capturing N and F indices");
-            //}
         }
 
         /// <summary>
@@ -277,7 +228,7 @@ namespace FDMremote.Utilities
         public bool AnchorCheck()
         {
             if (this.Anchors.Count < 3) return false;
-            else return true ;
+            else return true;
         }
 
         /// <summary>
@@ -287,7 +238,7 @@ namespace FDMremote.Utilities
         public bool NFCheck()
         {
             if (this.F.Count != this.Anchors.Count || this.F.Count + this.N.Count != Nn) return false;
-            else return true ;
+            else return true;
         }
 
         /// <summary>
@@ -297,9 +248,7 @@ namespace FDMremote.Utilities
         public bool IndexCheck()
         {
             if (this.Ne != this.Indices.Count) return false;
-            else return true ;
+            else return true;
         }
-
-
     }
 }

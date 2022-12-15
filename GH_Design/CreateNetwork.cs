@@ -31,7 +31,7 @@ namespace FDMremote
             pManager.AddCurveParameter("Edges", "E", "Edges between nodes", GH_ParamAccess.list);
             pManager.AddPointParameter("Anchors", "A", "Anchor points", GH_ParamAccess.list);
             pManager.AddNumberParameter("ForceDensities", "q", "Force density of edges", GH_ParamAccess.list, 1.0);
-            pManager.AddNumberParameter("IntersectionTolerance", "tol", "Geometric tolerance for connecting geometry", GH_ParamAccess.item, 1.0);
+            pManager.AddNumberParameter("IntersectionTolerance", "tol", "Geometric tolerance for connecting geometry", GH_ParamAccess.item, 0.1);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace FDMremote
             if (!DA.GetDataList(0, edges)) return;
             if (!DA.GetDataList(1, anchors)) return;
             if (!DA.GetDataList(2, q)) return;
-            if (!DA.GetData(3, ref tol)) return;
+            DA.GetData(3, ref tol);
 
             //create network
             Network fdmNetwork = new Network(anchors, edges, q, tol);
