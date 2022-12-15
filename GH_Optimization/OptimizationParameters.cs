@@ -50,7 +50,8 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             //initialize
-            List<OBJ> objs = new List<OBJ>();
+            List<OBJ> objs = new List<OBJ> { new OBJTarget(1.0) };
+            //List<OBJ> objs = new List<OBJ>();
             double lb = 0.1;
             double ub = 100.0;
             double abstol = 1e-3;
@@ -61,7 +62,7 @@ namespace FDMremote.GH_Optimization
 
             //assign
             if (!DA.GetDataList(0, objs)) return;
-            //DA.GetDataList(0, objs);
+            //if(!DA.GetDataList(0, objs)) objs = new List<OBJ> { new OBJNull()};
             DA.GetData(1, ref lb);
             DA.GetData(2, ref ub);
             DA.GetData(3, ref abstol);

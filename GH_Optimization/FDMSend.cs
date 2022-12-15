@@ -59,7 +59,8 @@ namespace FDMremote.GH_Optimization
         {
             //initialize
             //Network network = new Network();
-            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJTarget(1.0) }, true, 10, 500);
+            //OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJTarget(1.0) }, true, 10, 500);
+            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ>(), true, 10, 500);
             List<Vector3d> loads = new List<Vector3d>();
             bool status = true;
 

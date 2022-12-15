@@ -16,6 +16,15 @@ namespace FDMremote.Optimization
         public double Weight;
     }
 
+    internal class OBJNull: OBJ
+    {
+        public OBJNull()
+        {
+            this.OBJID = -1;
+            this.Weight = 1;
+        }
+    }
+
     internal class OBJTarget : OBJ
     {
         public OBJTarget(double weight)
