@@ -14,51 +14,23 @@ namespace FDMremote.Analysis
     {
         public Network FDMnetwork;
         public Matrix<double> XYZf; //fixed node positions, dense
-        public Matrix<double> Pn; //load matrix, dense
         public Matrix<double> C; //full connectivity matrix
         public Matrix<double> Cn; //connectivity matrix (free), sparse
         public Matrix<double> Cf; //connectivity matrix (fixed), sparse
         public Matrix<double> Q; //force density matrix, sparse diagonal
         public double Tolerance; 
         
-        public FDMproblem(Network fdm, Vector3d p, double tol)
+        public FDMproblem(Network fdm)
         {
             //copy input network
             FDMnetwork = new Network(fdm);
 
             if (!FDMnetwork.Valid) throw new Exception("FDM network is invalid");
 
-            Tolerance = tol;
+            Tolerance = fdm.Tolerance;
 
             //Build XYZf matrix
             GetXYZf();
-
-            //build Pn matrix
-            GetPn(p);
-
-            //build C
-            GetC();
-
-            //build Q
-            GetQ();
-
-        }
-
-        public FDMproblem(Network fdm, List<Vector3d> p, double tol)
-        {
-            //copy input network
-            FDMnetwork = new Network(fdm);
-
-            if (!FDMnetwork.Valid) throw new Exception("FDM network is invalid");
-
-            //Intersection tolerance
-            Tolerance = tol;
-
-            //Build XYZf matrix
-            GetXYZf();
-
-            //build Pn matrix
-            GetPn(p);
 
             //build C
             GetC();
@@ -89,45 +61,45 @@ namespace FDMremote.Analysis
         /// Generates the Nx3 load matrix
         /// </summary>
         /// <param name="p"></param>
-        private void GetPn(Vector3d p)
-        {
-            double[] pArray = new double[] {p.X, p.Y, p.Z}; //convert Vector3d into array of doubles
+        //private void GetPn(Vector3d p)
+        //{
+        //    double[] pArray = new double[] {p.X, p.Y, p.Z}; //convert Vector3d into array of doubles
 
-            //repeat load vector for free nodes
-            List<double[]> pn = new List<double[]>();
-            for (int i = 0; i < FDMnetwork.N.Count; i++)
-            {
-                pn.Add(pArray);
-            }
+        //    //repeat load vector for free nodes
+        //    List<double[]> pn = new List<double[]>();
+        //    for (int i = 0; i < FDMnetwork.N.Count; i++)
+        //    {
+        //        pn.Add(pArray);
+        //    }
 
-            //create Pn matrix
-            Pn = Matrix<double>.Build.DenseOfRowArrays(pn);
-        }
+        //    //create Pn matrix
+        //    Pn = Matrix<double>.Build.DenseOfRowArrays(pn);
+        //}
 
-        private void GetPn(List<Vector3d> p)
-        {
-            if (p.Count != FDMnetwork.N.Count && p.Count != 1) throw new ArgumentException("Length of force vectors must be 1 or match length of free nodes.");
+        //private void GetPn(List<Vector3d> p)
+        //{
+        //    if (p.Count != FDMnetwork.N.Count && p.Count != 1) throw new ArgumentException("Length of force vectors must be 1 or match length of free nodes.");
 
-            if (p.Count == 1) //use the single vector method
-            {
-                GetPn(p[0]); 
-            }
-            else //assign individual loads
-            {
-                //repeat load vector for free nodes
-                List<double[]> pn = new List<double[]>();
-                for (int i = 0; i < FDMnetwork.N.Count; i++)
-                {
-                    Vector3d currentP = p[i];
-                    double[] pArray = new double[] { currentP.X, currentP.Y, currentP.Z }; //convert Vector3d into array of doubles
-                    pn.Add(pArray);
-                }
+        //    if (p.Count == 1) //use the single vector method
+        //    {
+        //        GetPn(p[0]); 
+        //    }
+        //    else //assign individual loads
+        //    {
+        //        //repeat load vector for free nodes
+        //        List<double[]> pn = new List<double[]>();
+        //        for (int i = 0; i < FDMnetwork.N.Count; i++)
+        //        {
+        //            Vector3d currentP = p[i];
+        //            double[] pArray = new double[] { currentP.X, currentP.Y, currentP.Z }; //convert Vector3d into array of doubles
+        //            pn.Add(pArray);
+        //        }
 
-                //create Pn matrix
-                Pn = Matrix<double>.Build.DenseOfRowArrays(pn);
-            }
+        //        //create Pn matrix
+        //        Pn = Matrix<double>.Build.DenseOfRowArrays(pn);
+        //    }
             
-        }
+        //}
 
         /// <summary>
         /// Generates the connectivity matrix C, and partitioned columns Cn, Cf

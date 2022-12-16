@@ -28,11 +28,11 @@ namespace FDMremote.Utilities
         public List<int> Njulia;
         public List<int> Fjulia;
 
-        public InformationObject(Network network, FDMproblem problem)
+        public InformationObject(Network network, FDMproblem problem, Matrix<double> P)
         {
             Q = network.ForceDensities; // force density vector
             ExtractXYZ(network); // node spatial positions
-            ExtractPxyz(problem); //force vectors for each axis
+            ExtractPxyz(P); //force vectors for each axis
             IJVjulia(network); // CSC format of connectivity matrix
             Ne = network.Ne; // number of elements
             Nn = network.Nn; // number of nodes
@@ -57,9 +57,8 @@ namespace FDMremote.Utilities
             }
         }
 
-        private void ExtractPxyz(FDMproblem problem)
+        private void ExtractPxyz(Matrix<double> PXYZ)
         {
-            var PXYZ = problem.Pn;
             Px = PXYZ.Column(0).ToArray();
             Py = PXYZ.Column(1).ToArray();
             Pz = PXYZ.Column(2).ToArray();
