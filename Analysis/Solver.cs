@@ -32,6 +32,20 @@ namespace FDMremote.Analysis
             return A.Cholesky().Solve(b);
         }
 
+        public static Matrix<double> Solve(FDMproblem fdm, Matrix<double> P)
+        {
+            // extract variables
+            var Cn = fdm.Cn;
+            var Cf = fdm.Cf;
+            var XYZf = fdm.XYZf;
+            var Q = fdm.Q;
+
+            var A = Cn.TransposeThisAndMultiply(Q) * Cn; // LHS
+            var b = P - (Cn.TransposeThisAndMultiply(Q) * Cf * XYZf); // RHS
+
+            return A.Cholesky().Solve(b);
+        }
+
         /// <summary>
         /// Takes in a FDMproblem and returns a new network 
         /// </summary>
@@ -47,6 +61,47 @@ namespace FDMremote.Analysis
             // create new points
             List<Point3d> newPoints = new List<Point3d>();
             for(int i = 0; i < nFree; i++)
+            {
+                var values = newPositions.Row(i);
+                Point3d point = new Point3d(values[0], values[1], values[2]);
+                newPoints.Add(point);
+            }
+
+            // make new list of points
+            List<Point3d> points = NewPoints(fdm, newPositions);
+
+            // update curves
+            List<Curve> curves = NewCurves(fdm, points);
+
+            // copy all anchors
+            List<Point3d> anchors = new List<Point3d>(fdm.FDMnetwork.Anchors.Count);
+            fdm.FDMnetwork.Anchors.ForEach((item) =>
+            {
+                anchors.Add(new Point3d(item));
+            });
+
+            // copy force densities
+            List<double> q = new List<double>(fdm.FDMnetwork.ForceDensities.Count);
+            fdm.FDMnetwork.ForceDensities.ForEach((item) =>
+            {
+                q.Add(item);
+            });
+
+            Network network = new Network(anchors, curves, q, fdm.Tolerance);
+
+            return network;
+        }
+
+        public static Network SolvedNetwork(FDMproblem fdm, Matrix<double> P)
+        {
+            // solve for new positions
+            var newPositions = Solve(fdm, P);
+            // Number of free nodes
+            int nFree = fdm.FDMnetwork.N.Count;
+
+            // create new points
+            List<Point3d> newPoints = new List<Point3d>();
+            for (int i = 0; i < nFree; i++)
             {
                 var values = newPositions.Row(i);
                 Point3d point = new Point3d(values[0], values[1], values[2]);

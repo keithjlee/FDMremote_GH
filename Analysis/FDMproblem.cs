@@ -29,11 +29,6 @@ namespace FDMremote.Analysis
             if (!FDMnetwork.Valid) throw new Exception("FDM network is invalid");
 
             Tolerance = tol;
-            // problem geometry
-            //int nFree = fdm.N.Count;
-            //int nFixed = fdm.F.Count;
-            //int nNodes = fdm.Nn;
-            //int nElements = fdm.Ne;
 
             //Build XYZf matrix
             GetXYZf();
