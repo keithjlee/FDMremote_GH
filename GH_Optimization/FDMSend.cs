@@ -48,7 +48,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Data", "Data", "Optimization data", GH_ParamAccess.item);
+            pManager.AddTextParameter("Message", "Msg", "Optimization data", GH_ParamAccess.item);
         }
 
         /// <summary>

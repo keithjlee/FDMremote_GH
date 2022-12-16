@@ -28,7 +28,7 @@ namespace FDMremote.GH_Optimization
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Input Network", "Network", "Networking being optimized", GH_ParamAccess.item);
-            pManager.AddTextParameter("Optimization Data", "Data", "Result sent back from optimization", GH_ParamAccess.item);
+            pManager.AddTextParameter("Optimization Message", "Msg", "Result sent back from optimization", GH_ParamAccess.item);
         }
 
         /// <summary>

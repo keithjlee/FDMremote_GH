@@ -28,7 +28,7 @@ namespace FDMremote.Utilities
         public List<int> Njulia;
         public List<int> Fjulia;
 
-        public InformationObject(Network network, FDMproblem problem, Matrix<double> P)
+        public InformationObject(Network network, Matrix<double> P)
         {
             Q = network.ForceDensities; // force density vector
             ExtractXYZ(network); // node spatial positions
@@ -37,6 +37,18 @@ namespace FDMremote.Utilities
             Ne = network.Ne; // number of elements
             Nn = network.Nn; // number of nodes
             NFjulia(network); // indices of free/fixed nodes
+
+        }
+
+        public InformationObject(Network network, Matrix<double> P, int i)
+        {
+            Q = network.ForceDensities; // force density vector
+            ExtractXYZ(network); // node spatial positions
+            ExtractPxyz(P); //force vectors for each axis
+            IJV(network); // CSC format of connectivity matrix
+            Ne = network.Ne; // number of elements
+            Nn = network.Nn; // number of nodes
+            NF(network); // indices of free/fixed nodes
 
         }
 
@@ -83,6 +95,25 @@ namespace FDMremote.Utilities
             }
         }
 
+        private void IJV(Network network)
+        {
+            Ijulia = new List<int>();
+            Jjulia = new List<int>();
+            V = new List<int>();
+
+            for (int i = 0; i < network.Ne; i++)
+            {
+                var index = network.Indices[i];
+                Ijulia.Add(i);
+                Jjulia.Add(index[0]);
+                V.Add(-1);
+
+                Ijulia.Add(i);
+                Jjulia.Add(index[1]);
+                V.Add(1);
+            }
+        }
+
         private void NFjulia(Network network)
         {
             Njulia = new List<int>();
@@ -96,6 +127,22 @@ namespace FDMremote.Utilities
             for (int i = 0; i < network.F.Count; i++)
             {
                 Fjulia.Add(network.F[i] + 1);
+            }
+        }
+
+        private void NF(Network network)
+        {
+            Njulia = new List<int>();
+            Fjulia = new List<int>();
+
+            for (int i = 0; i < network.N.Count; i++)
+            {
+                Njulia.Add(network.N[i]);
+            }
+
+            for (int i = 0; i < network.F.Count; i++)
+            {
+                Fjulia.Add(network.F[i]);
             }
         }
 
