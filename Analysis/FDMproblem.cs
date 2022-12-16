@@ -145,15 +145,18 @@ namespace FDMremote.Analysis
             //var Ccols = C.ToColumnArrays();
 
             //initialize rows for N
-            double[][] Ncols = new double[FDMnetwork.N.Count][];
-            double[][] Fcols = new double[FDMnetwork.F.Count][];
+            //double[][] Ncols = new double[FDMnetwork.N.Count][];
+            //double[][] Fcols = new double[FDMnetwork.F.Count][];
 
+            List<Vector<double>> Ncols = new List<Vector<double>>();
+            List<Vector<double>> Fcols = new List<Vector<double>>();
             //extract the columns of free nodes
             for (int i = 0; i < FDMnetwork.N.Count; i++)
             {
                 int index = FDMnetwork.N[i];
                 //Ncols[i] = Ccols[index];
-                Ncols[i] = C.Column(index).ToArray();
+                //Ncols[i] = C.Column(index).ToArray();
+                Ncols.Add(C.Column(index));
             }
 
             //extract the columns of fixed nodes
@@ -161,13 +164,16 @@ namespace FDMremote.Analysis
             {
                 int index = FDMnetwork.F[i];
                 //Fcols[i] = Ccols[index];
-                Fcols[i] = C.Column(index).ToArray();
+                //Fcols[i] = C.Column(index).ToArray();
+                Fcols.Add(C.Column(index));
+
             }
 
             //create sparse matrices
-            Cn = Matrix<double>.Build.SparseOfColumnArrays(Ncols);
-            Cf = Matrix<double>.Build.SparseOfColumnArrays(Fcols);
-
+            //Cn = Matrix<double>.Build.SparseOfColumnArrays(Ncols);
+            //Cf = Matrix<double>.Build.SparseOfColumnArrays(Fcols);
+            Cn = Matrix<double>.Build.SparseOfColumnVectors(Ncols);
+            Cf = Matrix<double>.Build.SparseOfColumnVectors(Fcols);
         }
         
         /// <summary>

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FDMremote.Utilities;
-using FDMremote.Analysis;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics;
 using Rhino.Geometry;
 
 namespace FDMremote.Experimental

@@ -28,8 +28,7 @@ namespace FDMremote.GH_Analysis
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("FDM Network", "Network", "Input FDM network", GH_ParamAccess.item);
-            pManager.AddVectorParameter("Load Vector", "P", "Load Vector", GH_ParamAccess.list);
-            pManager.AddNumberParameter("IntersectionTolerance", "tol", "Geometric tolerance for connecting geometry", GH_ParamAccess.item, 1.0);
+            pManager.AddVectorParameter("Load Vector", "P", "Load Vector", GH_ParamAccess.list, new Vector3d(0,0,0));
         }
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace FDMremote.GH_Analysis
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("FDM Network", "Network", "Solved FDM network", GH_ParamAccess.item);
-            pManager.AddTextParameter("Data", "Data", "Network Data", GH_ParamAccess.item);
+            //pManager.AddTextParameter("Data", "Data", "Network Data", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -50,11 +49,17 @@ namespace FDMremote.GH_Analysis
             //read
             Network fdmNetwork = new Network();
             List<Vector3d> loads = new List<Vector3d>();
-            double tol = 1.0;
             
             if (!DA.GetData(0, ref fdmNetwork)) return;
             if (!DA.GetDataList(1, loads)) return;
-            if (!DA.GetData(2, ref tol)) return;
+
+            double tol = fdmNetwork.Tolerance;
+
+            // Prevent computer from freezing up
+            if (fdmNetwork.Ne > 300)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Size of network exceeding Grasshopper limits. Consider using the FDMsend remote solve component");
+            }
 
             //analysis
             FDMproblem prob = new FDMproblem(fdmNetwork, loads, tol);
@@ -63,12 +68,12 @@ namespace FDMremote.GH_Analysis
             Network fdmSolved = Solver.SolvedNetwork(prob);
 
             //rough test
-            InformationObject info = new InformationObject(fdmSolved, prob);
-            string data = JsonConvert.SerializeObject(info);
+            //InformationObject info = new InformationObject(fdmSolved, prob);
+            //string data = JsonConvert.SerializeObject(info);
 
             //return
             DA.SetData(0, fdmSolved);
-            DA.SetData(1, data);
+            //DA.SetData(1, data);
         }
 
         /// <summary>

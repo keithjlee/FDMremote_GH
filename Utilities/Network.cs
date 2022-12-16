@@ -160,7 +160,8 @@ namespace FDMremote.Utilities
                 int iend;
 
                 // analyze starting point
-                if (!pointlist.Contains(start))
+                //if (!pointlist.Contains(start))
+                if (!WithinTolerance(pointlist, start, tolerance))
                 {
                     pointlist.Add(start);
                     istart = pointlist.Count - 1;
@@ -176,7 +177,8 @@ namespace FDMremote.Utilities
                 }
 
                 // analyze end point
-                if (!pointlist.Contains(end))
+                //if (!pointlist.Contains(end))
+                if (!WithinTolerance(pointlist, end, tolerance))
                 {
                     pointlist.Add(end);
                     iend = pointlist.Count - 1;
@@ -200,10 +202,18 @@ namespace FDMremote.Utilities
 
         private bool WithinTolerance(Point3dList points, Point3d point, double tolerance)
         {
-            double dist = point.DistanceTo(Point3dList.ClosestPointInList(points, point));
+            try
+            {
+                double dist = point.DistanceTo(Point3dList.ClosestPointInList(points, point));
 
-            if (dist < tolerance) return true;
-            else return false;
+                if (dist < tolerance) return true;
+                else return false;
+            }
+            catch
+            {
+                return false;
+            }
+            
         }
 
         private void ValidCheck()
