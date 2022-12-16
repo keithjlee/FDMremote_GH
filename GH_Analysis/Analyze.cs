@@ -7,6 +7,7 @@ using FDMremote.Utilities;
 using FDMremote.Analysis;
 using Newtonsoft.Json;
 using System.IO;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace FDMremote.GH_Analysis
 {
@@ -53,8 +54,6 @@ namespace FDMremote.GH_Analysis
             if (!DA.GetData(0, ref fdmNetwork)) return;
             if (!DA.GetDataList(1, loads)) return;
 
-            double tol = fdmNetwork.Tolerance;
-
             // Prevent computer from freezing up
             if (fdmNetwork.Ne > 300)
             {
@@ -62,10 +61,11 @@ namespace FDMremote.GH_Analysis
             }
 
             //analysis
-            FDMproblem prob = new FDMproblem(fdmNetwork, loads, tol);
+            FDMproblem prob = new FDMproblem(fdmNetwork);
+            Matrix<double> P = Solver.PMaker(loads, fdmNetwork.N);
 
             //solving
-            Network fdmSolved = Solver.SolvedNetwork(prob);
+            Network fdmSolved = Solver.SolvedNetwork(prob, P);
 
             //rough test
             //InformationObject info = new InformationObject(fdmSolved, prob);
