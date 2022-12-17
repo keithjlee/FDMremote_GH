@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Utilities;
@@ -8,6 +8,7 @@ using FDMremote.Optimization;
 using FDMremote.Analysis;
 using Newtonsoft.Json;
 using WebSocketSharp;
+using FDMremote.Bengesht;
 
 namespace FDMremote.GH_Optimization
 {
@@ -21,6 +22,16 @@ namespace FDMremote.GH_Optimization
         Network network = new Network();
         Network outNetwork = new Network();
         string optiminfo = "";
+
+
+        //bengesht
+        private WsObject wscObj;
+        private bool isSubscribedToEvents;
+        private GH_Document ghDocument;
+        private WsAddress wsAddress;
+
+
+
         /// <summary>
         /// Initializes a new instance of the Optimize class.
         /// </summary>
@@ -29,6 +40,77 @@ namespace FDMremote.GH_Optimization
               "Use FDMremote.jl to optimize the network",
               "FDMremote", "Optimization")
         {
+            //bengesht
+            this.isSubscribedToEvents = false;
+            this.wsAddress = new WsAddress("");
+        }
+
+        //bengesht
+        ~Optimize()
+        {
+            this.disconnect();
+        }
+
+        //bengesht
+        private void disconnect()
+        {
+            if (this.wscObj != null)
+            {
+                try { this.wscObj.disconnect(); }
+                catch { }
+                this.wscObj.changed -= this.wsObjectOnChange;
+                this.wscObj = null;
+                this.wsAddress.setAddress(null);
+            }
+        }
+
+        //bengesht
+        private void documentOnObjectsDeleted(object sender, GH_DocObjectEventArgs e)
+        {
+            if (e.Objects.Contains(this))
+            {
+                e.Document.ObjectsDeleted -= documentOnObjectsDeleted;
+                this.disconnect();
+            }
+        }
+
+        //bengesht
+        private void documentServerOnDocumentClosed(GH_DocumentServer sender, GH_Document doc)
+        {
+            if (this.ghDocument != null && doc.DocumentID == this.ghDocument.DocumentID)
+            {
+                this.disconnect();
+            }
+        }
+
+        //bengesht
+        void onObjectChanged(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
+        {
+            if (this.Locked)
+                this.disconnect();
+        }
+        //bengesht
+        private void subscribeToEvents()
+        {
+            if (!this.isSubscribedToEvents)
+            {
+                this.ghDocument = OnPingDocument();
+
+                if (this.ghDocument != null)
+                {
+                    this.ghDocument.ObjectsDeleted += documentOnObjectsDeleted;
+                    GH_InstanceServer.DocumentServer.DocumentRemoved += documentServerOnDocumentClosed;
+                }
+
+                this.ObjectChanged += this.onObjectChanged;
+                this.isSubscribedToEvents = true;
+            }
+        }
+
+        //bengesht
+        private void wsObjectOnChange(object sender, EventArgs e)
+        {
+            this.Message = WsObjectStatus.GetStatusName(this.wscObj.status);
         }
 
         /// <summary>
@@ -39,7 +121,7 @@ namespace FDMremote.GH_Optimization
             pManager.AddGenericParameter("FDM Network", "Network", "Network to Optimize", GH_ParamAccess.item); // Network
             pManager.AddGenericParameter("Optimization Parameters", "Params", "Objective functions, tolerances, etc.", GH_ParamAccess.item); // all other parameters
             pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Connect", "Connect", "Open/Close connection", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Reset", "Rst", "Reset connection", GH_ParamAccess.item, false);
             pManager.AddTextParameter("Host", "Host", "Host address", GH_ParamAccess.item, "127.0.0.1");
             pManager.AddTextParameter("Port", "Port", "Port ID", GH_ParamAccess.item, "2000");
         }
@@ -49,15 +131,12 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            //pManager.AddGenericParameter("FDM Network", "Network", "Optimized network", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("Objective function value", "Loss", "Result of optimization", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("Optimized variables", "X", "Design variables of optimized solution", GH_ParamAccess.list);
-            //pManager.AddTextParameter("Output", "Out", "TestOutput", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Optimized", "Complete", "Has the optimization completed?", GH_ParamAccess.item);
             pManager.AddGenericParameter("Optimized Network", "Network", "New optimized network", GH_ParamAccess.item);
             pManager.AddNumberParameter("Current Q", "q", "Optimized force density values", GH_ParamAccess.list);
             pManager.AddNumberParameter("Current Loss", "f(q)", "Final objective function value", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Number of Iterations", "n_iter", "Total number of iterations", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Loss History", "LossTrace", "Trace of f(q) over optimization duration", GH_ParamAccess.list);
             pManager.AddTextParameter("Data", "Data", "Optimization data", GH_ParamAccess.item);
         }
 
@@ -71,21 +150,12 @@ namespace FDMremote.GH_Optimization
             //Network network = new Network();
             OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJTarget(1.0)}, true, 10, 500);
             List<Vector3d> loads = new List<Vector3d>();
-            bool status = true;
+            bool reset = false;
 
             if (!DA.GetData(0, ref network)) return;
             DA.GetData(1, ref objparams);
             if (!DA.GetDataList(2, loads)) return;
-            if (!DA.GetData(3, ref status)) return;
-
-            //connection info
-            string host = "";
-            string port = "";
-
-            DA.GetData(4, ref host);
-            DA.GetData(5, ref port);
-
-            string address = "ws://" + host + ":" + port;
+            if (!DA.GetData(3, ref reset)) return;
 
             //check that load count is correct
             if (loads.Count != 1)
@@ -96,24 +166,41 @@ namespace FDMremote.GH_Optimization
                 }
             }
 
-            //make problem
-            if (status)
+            //MAKING CONNECTION
+            string host = "";
+            string port = "";
+            string initMsg = "init";
+
+            DA.GetData(4, ref host);
+            DA.GetData(5, ref port);
+
+            string address = "ws://" + host + ":" + port;
+
+            if (!this.wsAddress.isSameAs(address) || reset)
             {
-                OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
+                this.disconnect();
 
-                //just testing
-                string data = JsonConvert.SerializeObject(optimprob);
-                //DA.SetData(0, data);
+                this.wsAddress.setAddress(address);
 
-                //loop
-                using (WebSocket ws = new WebSocket(address))
+                if (this.wsAddress.isValid())
                 {
-                    ws.OnMessage += Ws_OnMessage;
-                    ws.Connect();
-                    ws.Send(data);
+                    this.wscObj = new WsObject().init(address, initMsg);
+                    this.Message = "Connecting";
+                    this.wscObj.changed += this.wsObjectOnChange;
+                }
+                else
+                {
+                    this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Invalid address");
                 }
             }
+
             
+            OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
+            string data = JsonConvert.SerializeObject(optimprob);
+
+            WsObject wsSender = new WsObject();
+            wsSender = this.wscObj;
+            wsSender.send(data);
 
             DA.SetData(0, Finished);
             DA.SetData(1, outNetwork);
@@ -121,39 +208,6 @@ namespace FDMremote.GH_Optimization
             DA.SetData(3, Loss);
             DA.SetData(4, Iter);
             DA.SetData(5, optiminfo);
-
-        }
-
-        private void Ws_OnMessage(object sender, MessageEventArgs e)
-        {
-            Receiver receiver = JsonConvert.DeserializeObject<Receiver>(e.Data);
-            if (receiver.Finished)
-            {
-                optiminfo = e.Data;
-            }
-            MessageAct(receiver);
-            this.ExpireSolution(true);
-        }
-
-        private void MessageAct(Receiver receiver)
-        {
-            Finished = receiver.Finished;
-            Iter = receiver.Iter;
-            Loss = receiver.Loss;
-            Q = (List<double>)receiver.Q;
-
-            List<Point3d> points = new List<Point3d>();
-            for (int i = 0; i < receiver.X.Count; i++)
-            {
-                points.Add(new Point3d(receiver.X[i], receiver.Y[i], receiver.Z[i]));
-            }
-
-            Curves = Solver.NewCurves(network, points);
-
-            if (Finished)
-            {
-                outNetwork = new Network(network.Anchors, Curves, (List<double>)receiver.Q, network.Tolerance);
-            }
 
         }
 
