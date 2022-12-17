@@ -7,6 +7,7 @@ using Rhino.Geometry;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using FDMremote.Utilities;
+using Rhino.Collections;
 
 namespace FDMremote.Analysis
 {
@@ -346,6 +347,51 @@ namespace FDMremote.Analysis
                 //create Pn matrix
                 return Matrix<double>.Build.DenseOfRowArrays(pn);
             }
+        }
+
+        public static List<Vector3d> Reactions(Network network)
+        {
+            List<double> internalforces = Forces(network);
+            Point3dList startpoints = new Point3dList();
+            Point3dList endpoints = new Point3dList();
+
+            List<Vector3d> anchorforces = new List<Vector3d>();
+
+            foreach (Curve curve in network.Curves)
+            {
+                startpoints.Add(curve.PointAtStart);
+                endpoints.Add(curve.PointAtEnd);
+            }
+
+            for (int i = 0; i < network.F.Count; i++)
+            {
+                var index = network.F[i];
+                var point = network.Points[index];
+
+                for (int j = 0; j < startpoints.Count; j++)
+                {
+                    if (point.DistanceTo(startpoints[j]) <= network.Tolerance)
+                    {
+                        Vector3d force = new Vector3d(network.Curves[j].PointAtEnd - network.Curves[j].PointAtStart);
+
+                        if (anchorforces.Count > i && anchorforces[i] != null) anchorforces[i] -= internalforces[j] * force / force.Length;
+                        else anchorforces.Add(-internalforces[j] * force / force.Length);
+
+                    }
+
+                    if (point.DistanceTo(endpoints[j]) <= network.Tolerance)
+                    {
+                        Vector3d force = new Vector3d(network.Curves[j].PointAtEnd - network.Curves[j].PointAtStart);
+
+                        if (anchorforces.Count > i && anchorforces[i] != null) anchorforces[i] += internalforces[j] * force / force.Length;
+                        else anchorforces.Add(internalforces[j] * force / force.Length);
+
+                    }
+                }
+            }
+
+            return anchorforces;
+
         }
     }
 }
