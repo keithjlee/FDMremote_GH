@@ -5,6 +5,8 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Utilities;
 using FDMremote.Optimization;
+using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Types;
 
 namespace FDMremote.GH_Optimization
 {
@@ -33,6 +35,12 @@ namespace FDMremote.GH_Optimization
             pManager.AddIntegerParameter("Maximum Iterations", "MaxIter", "Maximum number of iterations", GH_ParamAccess.item, 500);
             pManager.AddIntegerParameter("Update Frequency", "Frequency", "Frequency of return reports", GH_ParamAccess.item, 10);
             pManager.AddBooleanParameter("Show Iterations", "ShowIter", "Show intermittent solutions", GH_ParamAccess.item, true);
+
+            //default null objective
+            Param_GenericObject paramobj = (Param_GenericObject)pManager[0];
+            List<OBJ> defaultobjs = new List<OBJ> { new OBJNull() };
+            OBJ defaultobj = new OBJNull();
+            paramobj.PersistentData.Append(new GH_ObjectWrapper(defaultobj));
         }
 
         /// <summary>
@@ -50,8 +58,7 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             //initialize
-            List<OBJ> objs = new List<OBJ> { new OBJTarget(1.0) };
-            //List<OBJ> objs = new List<OBJ>();
+            List<OBJ> objs = new List<OBJ>();
             double lb = 0.1;
             double ub = 100.0;
             double abstol = 1e-3;
@@ -62,7 +69,6 @@ namespace FDMremote.GH_Optimization
 
             //assign
             if (!DA.GetDataList(0, objs)) return;
-            //if(!DA.GetDataList(0, objs)) objs = new List<OBJ> { new OBJNull()};
             DA.GetData(1, ref lb);
             DA.GetData(2, ref ub);
             DA.GetData(3, ref abstol);

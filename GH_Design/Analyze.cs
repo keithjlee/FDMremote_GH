@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using System.IO;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace FDMremote.GH_Analysis
+namespace FDMremote.GH_Design
 {
     public class Analyze : GH_Component
     {
@@ -19,23 +19,23 @@ namespace FDMremote.GH_Analysis
         public Analyze()
           : base("AnalyzeNetwork", "Analyze",
               "Analyze a FDM network",
-              "FDMremote", "Analysis")
+              "FDMremote", "Design")
         {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("FDM Network", "Network", "Input FDM network", GH_ParamAccess.item);
-            pManager.AddVectorParameter("Load Vector", "P", "Load Vector", GH_ParamAccess.list, new Vector3d(0,0,0));
+            pManager.AddVectorParameter("Load Vector", "P", "Load Vector", GH_ParamAccess.list, new Vector3d(0, 0, 0));
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("FDM Network", "Network", "Solved FDM network", GH_ParamAccess.item);
             //pManager.AddTextParameter("Data", "Data", "Network Data", GH_ParamAccess.item);
@@ -50,14 +50,14 @@ namespace FDMremote.GH_Analysis
             //read
             Network fdmNetwork = new Network();
             List<Vector3d> loads = new List<Vector3d>();
-            
+
             if (!DA.GetData(0, ref fdmNetwork)) return;
             if (!DA.GetDataList(1, loads)) return;
 
             // Prevent computer from freezing up
             if (fdmNetwork.Ne > 300)
             {
-                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Size of network exceeding Grasshopper limits. Consider using the FDMsend remote solve component");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Size of network exceeding Grasshopper limits. Consider using the FDMsend remote solve component");
             }
 
             //analysis

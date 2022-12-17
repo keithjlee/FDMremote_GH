@@ -8,7 +8,7 @@ using FDMremote.Utilities;
 using FDMremote.Analysis;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace FDMremote.GH_Design
+namespace FDMremote.GH_Utilities
 {
     public class Export : GH_Component
     {
@@ -18,23 +18,23 @@ namespace FDMremote.GH_Design
         public Export()
           : base("Export Data", "Export",
               "Export network information to JSON format",
-              "FDMremote", "Analysis")
+              "FDMremote", "Utilities")
         {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Network", "Network", "FDM network to export", GH_ParamAccess.item);
-            pManager.AddVectorParameter("Load", "P", "Load vector", GH_ParamAccess.list, new Vector3d(0,0,0));
+            pManager.AddVectorParameter("Load", "P", "Load vector", GH_ParamAccess.list, new Vector3d(0, 0, 0));
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("Export Data", "JSON", "JSON text file of FDM network", GH_ParamAccess.item);
         }
@@ -46,7 +46,7 @@ namespace FDMremote.GH_Design
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             Network network = new Network();
-            List<Vector3d> loads = new List<Vector3d> ();
+            List<Vector3d> loads = new List<Vector3d>();
 
             if (!DA.GetData(0, ref network)) return;
             DA.GetDataList(1, loads);

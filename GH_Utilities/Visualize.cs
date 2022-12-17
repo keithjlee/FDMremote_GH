@@ -11,7 +11,7 @@ using MathNet.Numerics.Integration;
 using System.Runtime.InteropServices;
 using Grasshopper.Kernel.Types.Transforms;
 
-namespace FDMremote.GH_Design
+namespace FDMremote.GH_Analysis
 {
     public class Visualize : GH_Component
     {
@@ -35,19 +35,19 @@ namespace FDMremote.GH_Design
         public Visualize()
           : base("Visualize Network", "Visualize",
               "Visualize a FDM network",
-              "FDMremote", "Design")
+              "FDMremote", "Utilities")
         {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Network", "Network", "Network to visualize", GH_ParamAccess.item);
-            pManager.AddVectorParameter("Loads", "P", "Applied loads", GH_ParamAccess.list, new Vector3d(0,0,0));
+            pManager.AddVectorParameter("Loads", "P", "Applied loads", GH_ParamAccess.list, new Vector3d(0, 0, 0));
             pManager.AddNumberParameter("Load Scale", "Pscale", "Scale factor for length of arrows", GH_ParamAccess.item, 1.0);
-            pManager.AddColourParameter("ColourMin", "Cmin", "Colour for minimum value", GH_ParamAccess.item, System.Drawing.Color.FromArgb(230,231,232));
+            pManager.AddColourParameter("ColourMin", "Cmin", "Colour for minimum value", GH_ParamAccess.item, System.Drawing.Color.FromArgb(230, 231, 232));
             pManager.AddColourParameter("ColourMax", "Cmax", "Colour for maximum value",
                 GH_ParamAccess.item, System.Drawing.Color.FromArgb(62, 168, 222));
             pManager.AddIntegerParameter("Color Property", "Property", "Property displayed by colour gradient", GH_ParamAccess.item, 0);
@@ -58,6 +58,7 @@ namespace FDMremote.GH_Design
             pManager.AddBooleanParameter("Show Reactions", "Reaction", "Show anchor reactions in preview", GH_ParamAccess.item, false);
 
             Param_Integer param = pManager[5] as Param_Integer;
+            param.AddNamedValue("None", -1);
             param.AddNamedValue("Force", 0);
             param.AddNamedValue("Q", 1);
 
@@ -66,7 +67,7 @@ namespace FDMremote.GH_Design
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
         }
 
@@ -89,7 +90,7 @@ namespace FDMremote.GH_Design
             react = false;
 
             //Assign
-            if (!DA.GetData(0, ref network)) return;
+            if(!DA.GetData(0, ref network)) return;
             DA.GetDataList(1, loads);
             DA.GetData(2, ref scale);
             DA.GetData(3, ref c0);
@@ -100,7 +101,7 @@ namespace FDMremote.GH_Design
             DA.GetData(8, ref load);
             DA.GetData(9, ref creact);
             DA.GetData(10, ref react);
-            
+
             //Lines and forces
             externalforces = LoadMaker(network.Points, network.N, loads, scale);
             edges = ToLines(network.Curves);
@@ -109,16 +110,28 @@ namespace FDMremote.GH_Design
             //element-wise values
             if (prop == 0)
             {
-                property = Solver.Forces(network);
+                property = Solver.Forces(network.Curves, network.ForceDensities);
                 SetGradient(property.Min(), property.Max());
             }
-            else
+            else if (prop == 1)
             {
                 property = network.ForceDensities;
                 SetGradient(property.Min(), property.Max());
             }
         }
 
+        public override BoundingBox ClippingBox
+        {
+            get
+            {
+                BoundingBox bb = new BoundingBox();
+                for (int i = 0; i < externalforces.Length; i++) bb.Union(externalforces[i].BoundingBox);
+                for (int i = 0; i < reactionforces.Length; i++) bb.Union(reactionforces[i].BoundingBox);
+
+                return bb;
+            }
+        }
+        
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
             base.DrawViewportWires(args);
@@ -127,10 +140,15 @@ namespace FDMremote.GH_Design
 
             if (react) args.Display.DrawArrows(reactionforces, creact);
 
-            for (int i = 0; i < edges.Length; i++)
+            if (prop == -1) args.Display.DrawLines(edges, c1, thickness);
+            else
             {
-                args.Display.DrawLine(edges[i], grad.ColourAt(property[i]), thickness);
+                for (int i = 0; i < edges.Length; i++)
+                {
+                    args.Display.DrawLine(edges[i], grad.ColourAt(property[i]), thickness);
+                }
             }
+            
         }
 
         public Line[] ToLines(List<Curve> curves)
@@ -183,8 +201,8 @@ namespace FDMremote.GH_Design
 
             if (N.Count != loads.Count && loads.Count != 1) throw new ArgumentException("Length of force vectors must be 1 or match length of free nodes.");
 
-            
-            
+
+
             if (loads.Count == 1)
             {
                 for (int i = 0; i < N.Count; i++)
@@ -201,7 +219,7 @@ namespace FDMremote.GH_Design
                 //extract magnitudes
                 var lns = loads.Select(p => p.Length).ToList();
                 var normalizer = lns.Max();
-                
+
                 for (int i = 0; i < N.Count; i++)
                 {
                     int index = N[i];

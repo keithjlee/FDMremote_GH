@@ -314,6 +314,20 @@ namespace FDMremote.Analysis
 
         }
 
+        public static List<double> Forces(List<Curve> curves, List<Double> densities)
+        {
+            if (curves.Count != densities.Count) return null;
+
+            List<double> forces = new List<double>();
+
+            for (int i = 0; i < curves.Count; i++)
+            {
+                forces.Add(curves[i].GetLength() * densities[i]);
+            }
+
+            return forces;
+        }
+
         public static Matrix<double> PMaker(Vector3d load, List<int> N)
         {
             double[] pArray = new double[] { load.X, load.Y, load.Z };
@@ -351,7 +365,7 @@ namespace FDMremote.Analysis
 
         public static List<Vector3d> Reactions(Network network)
         {
-            List<double> internalforces = Forces(network);
+            List<double> internalforces = Forces(network.Curves, network.ForceDensities);
             Point3dList startpoints = new Point3dList();
             Point3dList endpoints = new Point3dList();
 

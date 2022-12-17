@@ -9,6 +9,7 @@
   </PropertyGroup>
 	
   <ItemGroup>
+    <Compile Remove="Experimental\Topologize.cs" />
     <Compile Remove="GH_Optimization\receive_OLD.cs" />
     <Compile Remove="GH_Optimization\send_OLD.cs" />
   </ItemGroup>
@@ -36,6 +37,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="Experimental\" />
     <Folder Include="Scratch\" />
   </ItemGroup>
   

@@ -42,6 +42,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item) ; 
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace FDMremote.GH_Optimization
         {
             //initialize
             //Network network = new Network();
-            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJNull()}, true, 10, 500);
+            OBJParameters objparams = new OBJParameters();
             List<Vector3d> loads = new List<Vector3d>();
             bool close = false;
             WsObject wscObj = new WsObject();
@@ -60,7 +61,7 @@ namespace FDMremote.GH_Optimization
 
             if (!DA.GetData(0, ref wscObj)) return;
             if (!DA.GetData(1, ref network)) return;
-            DA.GetData(2, ref objparams);
+            if (!DA.GetData(2, ref objparams)) return;
             if (!DA.GetDataList(3, loads)) return;
             if (!DA.GetData(4, ref close)) return;
 
@@ -76,6 +77,8 @@ namespace FDMremote.GH_Optimization
             OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
             if (!close) wscObj.send(JsonConvert.SerializeObject(optimprob));
             else wscObj.send("CLOSE");
+
+            DA.SetData(0, JsonConvert.SerializeObject(optimprob));
         }
 
         /// <summary>
