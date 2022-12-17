@@ -1,40 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using Grasshopper;
+
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using FDMremote.Utilities;
 using FDMremote.Optimization;
-using FDMremote.Analysis;
 using Newtonsoft.Json;
+using FDMremote.Utilities;
 using WebSocketSharp;
-using FDMremote.Bengesht;
 
 namespace FDMremote.GH_Optimization
 {
-    public class FDMsend : GH_Component
+    public class FDMsend_old : GH_Component
     {
+        bool Finished = false;
+        int Iter = 0;
+        double Loss = 0.0;
+        List<double> Q = new List<double>();
+        List<Curve> Curves = new List<Curve>();
+        Network network = new Network();
+        Network outNetwork = new Network();
+        string optiminfo = "";
         /// <summary>
         /// Initializes a new instance of the Optimize class.
         /// </summary>
-        public FDMsend()
-          : base("Remote Send", "FDMsend",
-              "Send data to server; Bengesht design",
+        public FDMsend_old()
+          : base("FDMremote Send", "FDMSend",
+              "send data to FDMremote.jl server",
               "FDMremote", "Optimization")
         {
         }
-
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Websocket Objects", "WSC", "websocket objects", GH_ParamAccess.item);
             pManager.AddGenericParameter("FDM Network", "Network", "Network to Optimize", GH_ParamAccess.item); // Network
             pManager.AddGenericParameter("Optimization Parameters", "Params", "Objective functions, tolerances, etc.", GH_ParamAccess.item); // all other parameters
             pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Close", "Close", "Close Server; must restart on server side if reconnecting", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Connect", "Connect", "Open/Close connection", GH_ParamAccess.item, true);
+            pManager.AddTextParameter("Host", "Host", "Host address", GH_ParamAccess.item, "127.0.0.1");
+            pManager.AddTextParameter("Port", "Port", "Port ID", GH_ParamAccess.item, "2000");
         }
 
         /// <summary>
@@ -42,6 +48,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddTextParameter("Message", "Msg", "Optimization data", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -52,17 +59,24 @@ namespace FDMremote.GH_Optimization
         {
             //initialize
             //Network network = new Network();
-            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJNull()}, true, 10, 500);
+            //OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ> { new OBJTarget(1.0) }, true, 10, 500);
+            OBJParameters objparams = new OBJParameters(0.1, 100.0, 1e-3, 1e-3, new List<OBJ>(), true, 10, 500);
             List<Vector3d> loads = new List<Vector3d>();
-            bool close = false;
-            WsObject wscObj = new WsObject();
-            Network network = new Network();
+            bool status = true;
 
-            if (!DA.GetData(0, ref wscObj)) return;
-            if (!DA.GetData(1, ref network)) return;
-            DA.GetData(2, ref objparams);
-            if (!DA.GetDataList(3, loads)) return;
-            if (!DA.GetData(4, ref close)) return;
+            if (!DA.GetData(0, ref network)) return;
+            DA.GetData(1, ref objparams);
+            if (!DA.GetDataList(2, loads)) return;
+            if (!DA.GetData(3, ref status)) return;
+
+            //connection info
+            string host = "";
+            string port = "";
+
+            DA.GetData(4, ref host);
+            DA.GetData(5, ref port);
+
+            string address = "ws://" + host + ":" + port;
 
             //check that load count is correct
             if (loads.Count != 1)
@@ -73,22 +87,42 @@ namespace FDMremote.GH_Optimization
                 }
             }
 
+            //make problem
             OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
-            if (!close) wscObj.send(JsonConvert.SerializeObject(optimprob));
-            else wscObj.send("CLOSE");
-        }
 
+            //just testing
+            if (status)
+            {
+                ClearData();
+                string data = JsonConvert.SerializeObject(optimprob);
+                DA.SetData(0, data);
+            }
+            else
+            {
+                ClearData();
+                DA.SetData(0, "CLOSE");
+            }
+        }
+            
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.Optimize;
+        protected override System.Drawing.Bitmap Icon
+        {
+            get
+            {
+                //You can add image files to your project resources and access them like this:
+                // return Resources.IconForThisComponent;
+                return null;
+            }
+        }
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("99C37348-2761-466F-BD63-2B2381150116"); }
+            get { return new Guid("35C14E73-6FE1-447D-BCED-27980386A096"); }
         }
     }
 }

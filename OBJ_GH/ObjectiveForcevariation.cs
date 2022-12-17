@@ -5,16 +5,16 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Optimization;
 
-namespace FDMremote.GH_Optimization
+namespace FDMremote.OBJ_GH
 {
-    public class ObjectiveTarget : GH_Component
+    public class ObjectiveForcevariation : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ObjectiveTarget class.
+        /// Initializes a new instance of the ObjectiveForcevariation class.
         /// </summary>
-        public ObjectiveTarget()
-          : base("OBJTargetShape", "OBJTarget",
-              "Minimize the solved nodal distances to target nodes.",
+        public ObjectiveForcevariation()
+          : base("OBJForceVariation", "OBJForce",
+              "Minimize the difference between the largest and smallest member forces.",
               "FDMremote", "Objective Functions")
         {
         }
@@ -22,7 +22,7 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddNumberParameter("Weight", "W", "Weight of objective", GH_ParamAccess.item, 1.0);
         }
@@ -30,9 +30,9 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("OBJTarget", "OBJ", "Target Objective Function", GH_ParamAccess.item);
+            pManager.AddGenericParameter("OBJForce", "OBJ", "Force Variation Function", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -44,23 +44,22 @@ namespace FDMremote.GH_Optimization
             double weight = 1.0;
             DA.GetData(0, ref weight);
 
-            OBJTarget obj = new OBJTarget(weight);
+            OBJforcevariation obj = new OBJforcevariation(weight);
 
             DA.SetData(0, obj);
-
         }
 
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJtarget;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJforcedev;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("6AA55256-288F-49A6-9648-5314691BB659"); }
+            get { return new Guid("DDF4BBFC-685F-4D1F-A4BB-0E91B539D149"); }
         }
     }
 }

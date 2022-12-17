@@ -9,13 +9,13 @@ using Newtonsoft.Json;
 
 namespace FDMremote.GH_Optimization
 {
-    public class FDMreceive : GH_Component
+    public class receive_OLD : GH_Component
     {
         List<Curve> curves;
         /// <summary>
         /// Initializes a new instance of the OptimizationResults class.
         /// </summary>
-        public FDMreceive()
+        public receive_OLD()
           : base("FDMremote Receive", "FDMreceive",
               "Recieve analyzed results from FDMremote.jl server",
               "FDMremote", "Optimization")
