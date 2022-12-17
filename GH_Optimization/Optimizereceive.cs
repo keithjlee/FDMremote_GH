@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Windows.Forms;
+using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Bengesht;
@@ -24,7 +25,7 @@ namespace FDMremote.GH_Optimization
               "Description",
               "FDMremote", "Optimization")
         {
-            onMessageTriggered = false;
+            this.onMessageTriggered = false;
             this.isAutoUpdate = true;
             this.isAskingNewSolution = false;
         }
@@ -43,6 +44,8 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("Message", "Msg", "message", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Status", "Sts", "status", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -51,7 +54,90 @@ namespace FDMremote.GH_Optimization
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            DA.GetData(1, ref this.isAutoUpdate);
+
+            if (this.ghDocument == null)
+            {
+                this.ghDocument = OnPingDocument();
+                if (this.ghDocument == null) return;
+
+                GH_Document.SolutionEndEventHandler handle = delegate (Object sender, GH_SolutionEventArgs e)
+                {
+
+                };
+
+                ghDocument.SolutionEnd += handle;
+            }
+
+            if (!this.onMessageTriggered)
+            {
+                WsObject wscObj = new WsObject();
+
+                if (DA.GetData(0, ref wscObj))
+                {
+                    if (this.wscObj != wscObj)
+                    {
+                        this.unsubscribeEventHandlers();
+                        this.wscObj = wscObj;
+                        this.subscribeEventHandlers();
+                    }
+                }
+                else
+                {
+                    this.unsubscribeEventHandlers();
+                    this.wscObj = null;
+                    this.onMessageTriggered = false;
+                    return;
+                }
+            }
+
+            DA.SetData(0, this.wscObj.message);
+            DA.SetData(1, WsObjectStatus.GetStatusName(this.wscObj.status));
+            this.onMessageTriggered = false;
         }
+
+        private void unsubscribeEventHandlers()
+        {
+            try { this.wscObj.changed -= this.wscObjOnChanged; }
+            catch { }
+        }//eof
+
+
+
+
+        private void subscribeEventHandlers()
+        {
+            this.wscObj.changed += this.wscObjOnChanged;
+        }
+
+
+
+
+        private void wscObjOnChanged(object sender, EventArgs e)
+        {
+            /*
+            ghDocument.ScheduleSolution(0, doc =>
+            {
+                this.onMessageTriggered = true;
+                this.ExpireSolution(true);
+            });
+            */
+
+            if (this.isAutoUpdate && ghDocument.SolutionState != GH_ProcessStep.Process && wscObj != null && !isAskingNewSolution)
+            {
+
+                Instances.DocumentEditor.BeginInvoke((Action)delegate ()
+                {
+                    if (ghDocument.SolutionState != GH_ProcessStep.Process)
+                    {
+                        isAskingNewSolution = true;
+                        this.onMessageTriggered = true;
+                        this.ExpireSolution(true);
+                        isAskingNewSolution = false;
+                    }
+                });
+            }
+        }//eof
 
         /// <summary>
         /// Provides an Icon for the component.
