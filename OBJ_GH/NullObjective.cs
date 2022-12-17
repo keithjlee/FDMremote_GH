@@ -5,16 +5,16 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Optimization;
 
-namespace FDMremote.GH_Optimization
+namespace FDMremote.OBJ_GH
 {
-    public class ObjectivePerformance : GH_Component
+    public class NullObjective : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ObjectivePerformance class.
+        /// Initializes a new instance of the NullObjective class.
         /// </summary>
-        public ObjectivePerformance()
-          : base("OBJPerformance", "FL",
-              "Sum of internal forces times lengths",
+        public NullObjective()
+          : base("NullObjective", "OBJNull",
+              "Null objective",
               "FDMremote", "Objective Functions")
         {
         }
@@ -22,17 +22,16 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Weight", "W", "Weight of objective", GH_ParamAccess.item, 1.0);
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("OBJPerformance", "OBJ", "Performance Objective Function", GH_ParamAccess.item);
+            pManager.AddGenericParameter("OBJNull", "OBJ", "Null Objective", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -41,26 +40,28 @@ namespace FDMremote.GH_Optimization
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            double weight = 1.0;
-
-            if (!DA.GetData(0, ref weight)) return;
-
-            OBJPerformance obj = new OBJPerformance(weight);
-
-            DA.SetData(0, obj);
+            DA.SetData(0, new OBJNull());
         }
 
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJforce;
+        protected override System.Drawing.Bitmap Icon
+        {
+            get
+            {
+                //You can add image files to your project resources and access them like this:
+                // return Resources.IconForThisComponent;
+                return null;
+            }
+        }
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("D11889BC-9F3F-4CD7-9767-2C771B1E9DF9"); }
+            get { return new Guid("D9C243FD-4E3F-4869-97E8-5D5FB8AE22A0"); }
         }
     }
 }

@@ -5,16 +5,16 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Optimization;
 
-namespace FDMremote.GH_Optimization
+namespace FDMremote.OBJ_GH
 {
-    public class ObjectiveForcevariation : GH_Component
+    public class ObjectivePerformance : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ObjectiveForcevariation class.
+        /// Initializes a new instance of the ObjectivePerformance class.
         /// </summary>
-        public ObjectiveForcevariation()
-          : base("OBJForceVariation", "OBJForce",
-              "Minimize the difference between the largest and smallest member forces.",
+        public ObjectivePerformance()
+          : base("OBJPerformance", "FL",
+              "Sum of internal forces times lengths",
               "FDMremote", "Objective Functions")
         {
         }
@@ -22,7 +22,7 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddNumberParameter("Weight", "W", "Weight of objective", GH_ParamAccess.item, 1.0);
         }
@@ -30,9 +30,9 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("OBJForce", "OBJ", "Force Variation Function", GH_ParamAccess.item);
+            pManager.AddGenericParameter("OBJPerformance", "OBJ", "Performance Objective Function", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -42,9 +42,10 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             double weight = 1.0;
-            DA.GetData(0, ref weight);
 
-            OBJforcevariation obj = new OBJforcevariation(weight);
+            if (!DA.GetData(0, ref weight)) return;
+
+            OBJPerformance obj = new OBJPerformance(weight);
 
             DA.SetData(0, obj);
         }
@@ -52,14 +53,14 @@ namespace FDMremote.GH_Optimization
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJforcedev;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJforce;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("DDF4BBFC-685F-4D1F-A4BB-0E91B539D149"); }
+            get { return new Guid("D11889BC-9F3F-4CD7-9767-2C771B1E9DF9"); }
         }
     }
 }

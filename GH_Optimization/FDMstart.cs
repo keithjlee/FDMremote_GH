@@ -6,10 +6,11 @@ using Rhino.Geometry;
 using WebSocketSharp;
 using System.Windows.Forms;
 using Grasshopper;
+using FDMremote.Bengesht;
 
-namespace FDMremote.Bengesht
+namespace FDMremote.GH_Optimization
 {
-    public class WsStart : GH_Component
+    public class FDMstart : GH_Component
     {
         private WsObject wscObj;
         private bool isSubscribedToEvents;
@@ -19,29 +20,29 @@ namespace FDMremote.Bengesht
         /// <summary>
         /// Initializes a new instance of the WsStart class.
         /// </summary>
-        public WsStart()
-          : base("FDMstart", "Start",
-              "Start client-server connection",
+        public FDMstart()
+          : base("Remote Start", "FDMstart",
+              "Start client-server connection; Bengesht design",
               "FDMremote", "Optimization")
         {
-            this.isSubscribedToEvents = false;
-            this.wsAddress = new WsAddress("");
+            isSubscribedToEvents = false;
+            wsAddress = new WsAddress("");
         }
 
-        ~WsStart()
+        ~FDMstart()
         {
-            this.disconnect();
+            disconnect();
         }
 
         private void disconnect()
         {
-            if (this.wscObj != null)
+            if (wscObj != null)
             {
-                try { this.wscObj.disconnect(); }
+                try { wscObj.disconnect(); }
                 catch { }
-                this.wscObj.changed -= this.wsObjectOnChange;
-                this.wscObj = null;
-                this.wsAddress.setAddress(null);
+                wscObj.changed -= wsObjectOnChange;
+                wscObj = null;
+                wsAddress.setAddress(null);
             }
         }
 
@@ -50,50 +51,50 @@ namespace FDMremote.Bengesht
             if (e.Objects.Contains(this))
             {
                 e.Document.ObjectsDeleted -= documentOnObjectsDeleted;
-                this.disconnect();
+                disconnect();
             }
         }
 
         private void documentServerOnDocumentClosed(GH_DocumentServer sender, GH_Document doc)
         {
-            if (this.ghDocument != null && doc.DocumentID == this.ghDocument.DocumentID)
+            if (ghDocument != null && doc.DocumentID == ghDocument.DocumentID)
             {
-                this.disconnect();
+                disconnect();
             }
         }
 
         void onObjectChanged(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
         {
-            if (this.Locked)
-                this.disconnect();
+            if (Locked)
+                disconnect();
         }
 
         private void subscribeToEvents()
         {
-            if (!this.isSubscribedToEvents)
+            if (!isSubscribedToEvents)
             {
-                this.ghDocument = OnPingDocument();
+                ghDocument = OnPingDocument();
 
-                if (this.ghDocument != null)
+                if (ghDocument != null)
                 {
-                    this.ghDocument.ObjectsDeleted += documentOnObjectsDeleted;
+                    ghDocument.ObjectsDeleted += documentOnObjectsDeleted;
                     Instances.DocumentServer.DocumentRemoved += documentServerOnDocumentClosed;
                 }
 
-                this.ObjectChanged += this.onObjectChanged;
-                this.isSubscribedToEvents = true;
+                ObjectChanged += onObjectChanged;
+                isSubscribedToEvents = true;
             }
         }
 
         private void wsObjectOnChange(object sender, EventArgs e)
         {
-            this.Message = WsObjectStatus.GetStatusName(this.wscObj.status);
+            Message = WsObjectStatus.GetStatusName(wscObj.status);
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddBooleanParameter("Reset", "Rst", "Reset connection", GH_ParamAccess.item, false);
             pManager.AddTextParameter("Host", "Host", "Host address", GH_ParamAccess.item, "127.0.0.1");
@@ -103,7 +104,7 @@ namespace FDMremote.Bengesht
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("Websocket Objects", "WSC", "This object provides access to the connection. Connect this output to WS input websocket Send/Recv components.", GH_ParamAccess.item);
         }
@@ -114,7 +115,7 @@ namespace FDMremote.Bengesht
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            this.subscribeToEvents();
+            subscribeToEvents();
 
             string initMsg = "init";
             string host = "127.0.0.1";
@@ -127,25 +128,25 @@ namespace FDMremote.Bengesht
 
             string address = "ws://" + host + ":" + port;
 
-            if (!this.wsAddress.isSameAs(address) || reset)
+            if (!wsAddress.isSameAs(address) || reset)
             {
                 ////this.disconnect();
 
-                this.wsAddress.setAddress(address);
+                wsAddress.setAddress(address);
 
-                if (this.wsAddress.isValid())
+                if (wsAddress.isValid())
                 {
-                    this.wscObj = new WsObject().init(address, initMsg);
-                    this.Message = "Connecting";
-                    this.wscObj.changed += this.wsObjectOnChange;
+                    wscObj = new WsObject().init(address, initMsg);
+                    Message = "Connecting";
+                    wscObj.changed += wsObjectOnChange;
                 }
                 else
                 {
-                    this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Invalid address");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Invalid address");
                 }
             }
 
-            DA.SetData(0, this.wscObj);
+            DA.SetData(0, wscObj);
         }
 
         /// <summary>

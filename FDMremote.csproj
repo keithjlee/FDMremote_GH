@@ -7,6 +7,11 @@
     <Description>Description of FDMremote</Description>
     <TargetExt>.gha</TargetExt>
   </PropertyGroup>
+	
+  <ItemGroup>
+    <Compile Remove="GH_Optimization\receive_OLD.cs" />
+    <Compile Remove="GH_Optimization\send_OLD.cs" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Grasshopper" Version="7.13.21348.13001" IncludeAssets="compile;build" />
