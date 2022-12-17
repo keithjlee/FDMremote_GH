@@ -16,7 +16,7 @@ namespace FDMremote.GH_Optimization
         /// Initializes a new instance of the OptimizationParameters class.
         /// </summary>
         public OptimizationParameters()
-          : base("OptimizationParameters", "Params",
+          : base("Optimization Parameters", "Params",
               "Parameters for optimization",
               "FDMremote", "Optimization")
         {
@@ -32,13 +32,12 @@ namespace FDMremote.GH_Optimization
             pManager.AddNumberParameter("Upper Bound", "UB", "Upper bound of force densities", GH_ParamAccess.item, 100);
             pManager.AddNumberParameter("Absolute Tolerance", "AbsTol", "Absolute stopping tolerance", GH_ParamAccess.item, 1e-3);
             pManager.AddNumberParameter("Relative Tolerance", "RelTol", "Relative stopping tolerance", GH_ParamAccess.item, 1e-3);
-            pManager.AddIntegerParameter("Maximum Iterations", "MaxIter", "Maximum number of iterations", GH_ParamAccess.item, 500);
-            pManager.AddIntegerParameter("Update Frequency", "Frequency", "Frequency of return reports", GH_ParamAccess.item, 10);
+            pManager.AddIntegerParameter("Maximum Iterations", "MaxIter", "Maximum number of iterations", GH_ParamAccess.item, 400);
+            pManager.AddIntegerParameter("Update Frequency", "Frequency", "Frequency of return reports", GH_ParamAccess.item, 20);
             pManager.AddBooleanParameter("Show Iterations", "ShowIter", "Show intermittent solutions", GH_ParamAccess.item, true);
 
             //default null objective
             Param_GenericObject paramobj = (Param_GenericObject)pManager[0];
-            List<OBJ> defaultobjs = new List<OBJ> { new OBJNull() };
             OBJ defaultobj = new OBJNull();
             paramobj.PersistentData.Append(new GH_ObjectWrapper(defaultobj));
         }
@@ -76,6 +75,11 @@ namespace FDMremote.GH_Optimization
             DA.GetData(5, ref maxiter);
             DA.GetData(6, ref freq);
             DA.GetData(7, ref show);
+
+            if (show && freq < 10)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Update frequency is small--may cause visualization issues for large networks");
+            }
 
 
             //if (!DA.GetData(1, ref lb)) return;

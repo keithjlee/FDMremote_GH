@@ -14,7 +14,7 @@ namespace FDMremote.GH_Analysis
         /// Initializes a new instance of the VisualizeNetwork class.
         /// </summary>
         public NetworkInfo()
-          : base("NetworkInfo", "Info",
+          : base("Network Information", "Info",
               "Information about a FDM network",
               "FDMremote", "Utilities")
         {

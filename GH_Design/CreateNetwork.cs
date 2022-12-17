@@ -17,7 +17,7 @@ namespace FDMremote
         /// new tabs/panels will automatically be created.
         /// </summary>
         public CreateNetwork()
-          : base("CreateNetwork", "Create",
+          : base("Create Network", "Create",
             "Create FDM network",
             "FDMremote", "Design")
         {

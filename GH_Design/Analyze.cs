@@ -17,7 +17,7 @@ namespace FDMremote.GH_Design
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public Analyze()
-          : base("AnalyzeNetwork", "Analyze",
+          : base("Analyze Network", "Analyze",
               "Analyze a FDM network",
               "FDMremote", "Design")
         {

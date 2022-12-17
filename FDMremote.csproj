@@ -12,6 +12,7 @@
     <Compile Remove="Experimental\Topologize.cs" />
     <Compile Remove="GH_Optimization\receive_OLD.cs" />
     <Compile Remove="GH_Optimization\send_OLD.cs" />
+    <Compile Remove="OBJ_GH\NullObjective.cs" />
   </ItemGroup>
   
   <ItemGroup>

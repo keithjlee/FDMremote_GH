@@ -13,8 +13,8 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveForcevariation class.
         /// </summary>
         public ObjectiveForcevariation()
-          : base("OBJForceVariation", "OBJForce",
-              "Minimize the difference between the largest and smallest member forces.",
+          : base("Force Variation", "OBJForce",
+              "Minimize maximum(force) - minimum(force)",
               "FDMremote", "Objective Functions")
         {
         }

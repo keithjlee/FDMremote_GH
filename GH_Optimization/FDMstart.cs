@@ -22,7 +22,7 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         public FDMstart()
           : base("Remote Start", "FDMstart",
-              "Start client-server connection; Bengesht design",
+              "Start client-server connection; Bengesht design, Icon by ookijasa (Noun Project)",
               "FDMremote", "Optimization")
         {
             isSubscribedToEvents = false;

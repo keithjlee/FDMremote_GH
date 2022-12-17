@@ -9,6 +9,8 @@ using FDMremote.Analysis;
 using Newtonsoft.Json;
 using WebSocketSharp;
 using FDMremote.Bengesht;
+using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Types;
 
 namespace FDMremote.GH_Optimization
 {
@@ -35,6 +37,11 @@ namespace FDMremote.GH_Optimization
             pManager.AddGenericParameter("Optimization Parameters", "Params", "Objective functions, tolerances, etc.", GH_ParamAccess.item); // all other parameters
             pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list);
             pManager.AddBooleanParameter("Close", "Close", "Close Server; must restart on server side if reconnecting", GH_ParamAccess.item, false);
+
+            Param_GenericObject paramobj = (Param_GenericObject)pManager[2];
+            OBJParameters p = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 400);
+            paramobj.PersistentData.Append(new GH_ObjectWrapper(p));
+
         }
 
         /// <summary>

@@ -18,8 +18,8 @@ namespace FDMremote.GH_Analysis
         /// Initializes a new instance of the CurveToCurve class.
         /// </summary>
         public CurveToCurve()
-          : base("CurveToCurve", "CurvePairs",
-              "Displays the start and end orientation of curves pre/post analysis",
+          : base("Curve to Curve", "CurvePairs",
+              "Connecting the starting position of edges to equilibrium positions",
               "FDMremote", "Utilities")
         {
         }

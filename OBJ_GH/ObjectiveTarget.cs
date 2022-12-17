@@ -13,8 +13,8 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveTarget class.
         /// </summary>
         public ObjectiveTarget()
-          : base("OBJTargetShape", "OBJTarget",
-              "Minimize the solved nodal distances to target nodes.",
+          : base("Target", "OBJTarget",
+              "Minimize the deviation from starting nodal positions",
               "FDMremote", "Objective Functions")
         {
         }
