@@ -28,6 +28,39 @@ namespace FDMremote.Utilities
         public List<int> Njulia;
         public List<int> Fjulia;
 
+
+        [JsonConstructor]
+        public InformationObject(List<double> Q,
+            List<double> X,
+            List<double> Y,
+            List<double> Z,
+            double[] Px,
+            double[] Py,
+            double[] Pz,
+            List<int> Ijulia,
+            List<int> Jjulia,
+            List<int> V,
+            int Ne,
+            int Nn,
+            List<int> Njulia,
+            List<int> Fjulia)
+        {
+            this.Q = Q;
+            this.X = X;
+            this.Y = Y;
+            this.Z = Z;
+            this.Px = Px;
+            this.Py = Py;
+            this.Pz = Pz;
+            this.Ijulia= Ijulia;
+            this.Jjulia= Jjulia;
+            this.V = V;
+            this.Ne = Ne;
+            this.Nn = Nn;
+            this.Njulia= Njulia;
+            this.Fjulia= Fjulia;
+        }
+
         public InformationObject(Network network, Matrix<double> P)
         {
             Q = network.ForceDensities; // force density vector

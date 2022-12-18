@@ -52,7 +52,7 @@ namespace FDMremote.GH_Analysis
                 GH_ParamAccess.item, System.Drawing.Color.FromArgb(62, 168, 222));
             pManager.AddIntegerParameter("Color Property", "Property", "Property displayed by colour gradient", GH_ParamAccess.item, 0);
             pManager.AddIntegerParameter("Line Thickness", "Thickness", "Thickness of preview lines", GH_ParamAccess.item, 2);
-            pManager.AddColourParameter("Load Colour", "Cload", "Colour for applied loads", GH_ParamAccess.item, System.Drawing.Color.Coral);
+            pManager.AddColourParameter("Load Colour", "Cload", "Colour for applied loads", GH_ParamAccess.item, System.Drawing.Color.FromArgb(255,123,172));
             pManager.AddBooleanParameter("Show Loads", "Load", "Show external loads in preview", GH_ParamAccess.item, true);
             pManager.AddColourParameter("Reaction Colour", "Creaction", "Colour for support reactions", GH_ParamAccess.item, System.Drawing.Color.FromArgb(71, 181, 116));
             pManager.AddBooleanParameter("Show Reactions", "Reaction", "Show anchor reactions in preview", GH_ParamAccess.item, false);
@@ -84,7 +84,7 @@ namespace FDMremote.GH_Analysis
             double scale = 1.0;
             c0 = System.Drawing.Color.FromArgb(230, 231, 232);
             c1 = System.Drawing.Color.FromArgb(62, 168, 222);
-            cload = System.Drawing.Color.Coral;
+            cload = System.Drawing.Color.FromArgb(255, 123, 172);
             load = true;
             creact = System.Drawing.Color.FromArgb(71, 181, 116);
             react = false;
@@ -223,7 +223,7 @@ namespace FDMremote.GH_Analysis
                 for (int i = 0; i < N.Count; i++)
                 {
                     int index = N[i];
-                    Point3d p = nodes[i];
+                    Point3d p = nodes[index];
                     Vector3d l = loads[i];
 
                     loadvectors.Add(new Line(p, l * scale / normalizer));
@@ -236,15 +236,7 @@ namespace FDMremote.GH_Analysis
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon
-        {
-            get
-            {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
-            }
-        }
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.visualize;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.

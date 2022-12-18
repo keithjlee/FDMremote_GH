@@ -52,7 +52,7 @@ namespace FDMremote.OBJ_GH
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.OBJlength;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.lengthvar;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
