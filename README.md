@@ -1,5 +1,9 @@
+![](READMEutils/FDMremote.png)
+
 # FDMremote_GH
 FDMremote provides a series of Grasshopper components for Tension/Compression structure form-finding using the Force Density Method.
+
+# Usage
 
 # Optimization
 FDM remote is tied to [FDMremote.jl](https://github.com/keithjlee/FDMremote), which provides a high-performance backend written in Julia for the solving of large networks and/or optimization. It is not required for the core functionality of the plugin.
