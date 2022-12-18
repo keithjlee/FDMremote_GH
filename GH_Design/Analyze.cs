@@ -38,7 +38,6 @@ namespace FDMremote.GH_Design
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("FDM Network", "Network", "Solved FDM network", GH_ParamAccess.item);
-            //pManager.AddTextParameter("Data", "Data", "Network Data", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -67,13 +66,8 @@ namespace FDMremote.GH_Design
             //solving
             Network fdmSolved = Solver.SolvedNetwork(prob, P);
 
-            //rough test
-            //InformationObject info = new InformationObject(fdmSolved, prob);
-            //string data = JsonConvert.SerializeObject(info);
-
             //return
             DA.SetData(0, fdmSolved);
-            //DA.SetData(1, data);
         }
 
         /// <summary>

@@ -10,6 +10,9 @@ using FDMremote.Bengesht;
 
 namespace FDMremote.GH_Optimization
 {
+    /// <summary>
+    /// This code is from the Bengesht library by Behrooz Tahanzadeh
+    /// </summary>
     public class FDMstart : GH_Component
     {
         private WsObject wscObj;

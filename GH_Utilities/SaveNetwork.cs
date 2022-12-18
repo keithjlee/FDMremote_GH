@@ -54,7 +54,6 @@ namespace FDMremote.GH_Utilities
             pManager.AddCurveParameter("Edges", "E", "Edges", GH_ParamAccess.list);
             pManager.AddPointParameter("Anchors", "A", "Anchors", GH_ParamAccess.list);
             pManager.AddNumberParameter("Force Densities", "q", "Force Densities", GH_ParamAccess.list);
-            pManager.AddTextParameter("Solved Path", "output", "", GH_ParamAccess.item);
 
             pManager.HideParameter(0);
             pManager.HideParameter(1);
@@ -110,7 +109,6 @@ namespace FDMremote.GH_Utilities
             DA.SetDataList(0, curves);
             DA.SetDataList(1, anchors);
             DA.SetDataList(2, q);
-            DA.SetData(3, data);
         }
 
         /// <summary>

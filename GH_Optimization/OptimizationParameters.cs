@@ -10,6 +10,9 @@ using Grasshopper.Kernel.Types;
 
 namespace FDMremote.GH_Optimization
 {
+    /// <summary>
+    /// Parameters for remote optimization
+    /// </summary>
     public class OptimizationParameters : GH_Component
     {
         /// <summary>
@@ -81,14 +84,6 @@ namespace FDMremote.GH_Optimization
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Update frequency is small--may cause visualization issues for large networks");
             }
 
-
-            //if (!DA.GetData(1, ref lb)) return;
-            //if (!DA.GetData(2, ref ub)) return;
-            //if (!DA.GetData(3, ref abstol)) return;
-            //if (!DA.GetData(4, ref reltol)) return;
-            //if (!DA.GetData(5, ref maxiter)) return;
-            //if (!DA.GetData(6, ref freq)) return;
-            //if (!DA.GetData(7, ref show)) return;
 
             //create parameter
             OBJParameters objparams = new OBJParameters(lb, ub, abstol, reltol, objs, show, freq, maxiter);

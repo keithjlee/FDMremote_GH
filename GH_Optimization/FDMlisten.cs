@@ -12,6 +12,10 @@ using Newtonsoft.Json;
 
 namespace FDMremote.GH_Optimization
 {
+    /// <summary>
+    /// The main functionality is from Bengesht by Behrooz Tahanzadeh
+    /// Modified to directly parse message into FDMremote objects
+    /// </summary>
     public class FDMlisten : GH_Component
     {
         //network

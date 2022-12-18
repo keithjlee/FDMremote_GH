@@ -14,6 +14,10 @@ using Grasshopper.Kernel.Types;
 
 namespace FDMremote.GH_Optimization
 {
+    /// <summary>
+    /// The main functionality of this class is from Bengesht by Behrooz Tahanzadeh
+    /// Modifications are made to directly convert FDMremote objects into message
+    /// </summary>
     public class FDMsend : GH_Component
     {
         /// <summary>

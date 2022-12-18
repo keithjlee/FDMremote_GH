@@ -14,25 +14,11 @@ namespace FDMremote.Analysis
     internal class Solver
     {
         /// <summary>
-        /// Main solver
+        /// Linear solve for new positions
         /// </summary>
         /// <param name="fdm"></param>
+        /// <param name="P"></param>
         /// <returns></returns>
-        //public static Matrix<double> Solve(FDMproblem fdm)
-        //{
-        //    // extract variables
-        //    var Cn = fdm.Cn;
-        //    var Cf = fdm.Cf;
-        //    var XYZf = fdm.XYZf;
-        //    var Pn = fdm.Pn;
-        //    var Q = fdm.Q;
-
-        //    var A = Cn.TransposeThisAndMultiply(Q) * Cn; // LHS
-        //    var b = Pn - (Cn.TransposeThisAndMultiply(Q) * Cf * XYZf); // RHS
-
-        //    return A.Cholesky().Solve(b);
-        //}
-
         public static Matrix<double> Solve(FDMproblem fdm, Matrix<double> P)
         {
             // extract variables
@@ -52,47 +38,6 @@ namespace FDMremote.Analysis
         /// </summary>
         /// <param name="fdm"></param>
         /// <returns></returns>
-        //public static Network SolvedNetwork(FDMproblem fdm)
-        //{
-        //    // solve for new positions
-        //    var newPositions = Solve(fdm);
-        //    // Number of free nodes
-        //    int nFree = fdm.FDMnetwork.N.Count;
-
-        //    // create new points
-        //    List<Point3d> newPoints = new List<Point3d>();
-        //    for(int i = 0; i < nFree; i++)
-        //    {
-        //        var values = newPositions.Row(i);
-        //        Point3d point = new Point3d(values[0], values[1], values[2]);
-        //        newPoints.Add(point);
-        //    }
-
-        //    // make new list of points
-        //    List<Point3d> points = NewPoints(fdm, newPositions);
-
-        //    // update curves
-        //    List<Curve> curves = NewCurves(fdm, points);
-
-        //    // copy all anchors
-        //    List<Point3d> anchors = new List<Point3d>(fdm.FDMnetwork.Anchors.Count);
-        //    fdm.FDMnetwork.Anchors.ForEach((item) =>
-        //    {
-        //        anchors.Add(new Point3d(item));
-        //    });
-
-        //    // copy force densities
-        //    List<double> q = new List<double>(fdm.FDMnetwork.ForceDensities.Count);
-        //    fdm.FDMnetwork.ForceDensities.ForEach((item) =>
-        //    {
-        //        q.Add(item);
-        //    });
-
-        //    Network network = new Network(anchors, curves, q, fdm.Tolerance);
-
-        //    return network;
-        //}
-
         public static Network SolvedNetwork(FDMproblem fdm, Matrix<double> P)
         {
             // solve for new positions
@@ -129,6 +74,7 @@ namespace FDMremote.Analysis
                 q.Add(item);
             });
 
+            // create new network
             Network network = new Network(anchors, curves, q, fdm.Tolerance);
 
             return network;
@@ -314,6 +260,12 @@ namespace FDMremote.Analysis
 
         }
 
+        /// <summary>
+        /// Directly determine internal forces from solved lengths and force densities
+        /// </summary>
+        /// <param name="curves"></param>
+        /// <param name="densities"></param>
+        /// <returns></returns>
         public static List<double> Forces(List<Curve> curves, List<Double> densities)
         {
             if (curves.Count != densities.Count) return null;
@@ -328,6 +280,12 @@ namespace FDMremote.Analysis
             return forces;
         }
 
+        /// <summary>
+        /// Create the load matrix Pn
+        /// </summary>
+        /// <param name="load"></param>
+        /// <param name="N"></param>
+        /// <returns></returns>
         public static Matrix<double> PMaker(Vector3d load, List<int> N)
         {
             double[] pArray = new double[] { load.X, load.Y, load.Z };
@@ -363,6 +321,11 @@ namespace FDMremote.Analysis
             }
         }
 
+        /// <summary>
+        /// Solve for reaction forces at anchor points
+        /// </summary>
+        /// <param name="network"></param>
+        /// <returns></returns>
         public static List<Vector3d> Reactions(Network network)
         {
             List<double> internalforces = Forces(network.Curves, network.ForceDensities);

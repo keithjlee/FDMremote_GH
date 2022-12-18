@@ -7,6 +7,9 @@ using WebSocketSharp;
 
 namespace FDMremote.Bengesht
 {
+    /// <summary>
+    /// This code is from the Bengesht library by Behrooz Tahanzadeh
+    /// </summary>
     class WsObject
     {
         private WebSocket webSocket;

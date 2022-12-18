@@ -58,50 +58,6 @@ namespace FDMremote.Analysis
         }
 
         /// <summary>
-        /// Generates the Nx3 load matrix
-        /// </summary>
-        /// <param name="p"></param>
-        //private void GetPn(Vector3d p)
-        //{
-        //    double[] pArray = new double[] {p.X, p.Y, p.Z}; //convert Vector3d into array of doubles
-
-        //    //repeat load vector for free nodes
-        //    List<double[]> pn = new List<double[]>();
-        //    for (int i = 0; i < FDMnetwork.N.Count; i++)
-        //    {
-        //        pn.Add(pArray);
-        //    }
-
-        //    //create Pn matrix
-        //    Pn = Matrix<double>.Build.DenseOfRowArrays(pn);
-        //}
-
-        //private void GetPn(List<Vector3d> p)
-        //{
-        //    if (p.Count != FDMnetwork.N.Count && p.Count != 1) throw new ArgumentException("Length of force vectors must be 1 or match length of free nodes.");
-
-        //    if (p.Count == 1) //use the single vector method
-        //    {
-        //        GetPn(p[0]); 
-        //    }
-        //    else //assign individual loads
-        //    {
-        //        //repeat load vector for free nodes
-        //        List<double[]> pn = new List<double[]>();
-        //        for (int i = 0; i < FDMnetwork.N.Count; i++)
-        //        {
-        //            Vector3d currentP = p[i];
-        //            double[] pArray = new double[] { currentP.X, currentP.Y, currentP.Z }; //convert Vector3d into array of doubles
-        //            pn.Add(pArray);
-        //        }
-
-        //        //create Pn matrix
-        //        Pn = Matrix<double>.Build.DenseOfRowArrays(pn);
-        //    }
-            
-        //}
-
-        /// <summary>
         /// Generates the connectivity matrix C, and partitioned columns Cn, Cf
         /// </summary>
         private void GetC()
@@ -137,8 +93,6 @@ namespace FDMremote.Analysis
             }
 
             //create sparse matrices
-            //Cn = Matrix<double>.Build.SparseOfColumnArrays(Ncols);
-            //Cf = Matrix<double>.Build.SparseOfColumnArrays(Fcols);
             Cn = Matrix<double>.Build.SparseOfColumnVectors(Ncols);
             Cf = Matrix<double>.Build.SparseOfColumnVectors(Fcols);
         }

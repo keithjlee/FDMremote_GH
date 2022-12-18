@@ -39,9 +39,6 @@ namespace FDMremote
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            //pManager.AddCurveParameter("Edges", "E", "FDM edges", GH_ParamAccess.list);
-            //pManager.AddPointParameter("Nodes", "N", "FDM nodes", GH_ParamAccess.list);
-            //pManager.AddPointParameter("Anchors", "A", "FDM anchors", GH_ParamAccess.list);
             pManager.AddGenericParameter("Network", "Network", "FDM network", GH_ParamAccess.item);
         }
 
@@ -89,12 +86,7 @@ namespace FDMremote
             }
 
             //assign
-            //DA.SetDataList(0, fdmNetwork.Curves);
-            //DA.SetDataList(1, fdmNetwork.Points);
-            //DA.SetDataList(2, fdmNetwork.Anchors);
-            //DA.SetData(3, fdmNetwork);
             DA.SetData(0, fdmNetwork);
-            //ExpireSolution(true);
         }
 
         /// <summary>
