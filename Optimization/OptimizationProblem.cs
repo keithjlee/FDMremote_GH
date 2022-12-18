@@ -98,6 +98,10 @@ namespace FDMremote.Optimization
             //objectives and weights
             OBJids = new List<int>();
             OBJweights = new List<double>();
+            MinLength = 1.0;
+            MaxLength = 1000.0;
+            MinForce = 1.0;
+            MaxForce = 10000.0;
 
             // for each active objective
             for (int i = 0; i < objparams.Objectives.Count; i++)
@@ -106,6 +110,7 @@ namespace FDMremote.Optimization
                 OBJids.Add(obj.OBJID);
                 OBJweights.Add(obj.Weight);
 
+                // this is ugly but it's simple
                 if (obj.OBJID == 4)
                 {
                     var o = (OBJMinlength)obj;
@@ -116,6 +121,18 @@ namespace FDMremote.Optimization
                 {
                     var o = (OBJMaxlength)obj;
                     MaxLength = o.Value;
+                }
+
+                if (obj.OBJID == 6)
+                {
+                    var o = (OBJMinforce)obj;
+                    MinForce = o.Value;
+                }
+
+                if (obj.OBJID == 7)
+                {
+                    var o = (OBJMaxforce)obj;
+                    MaxForce = o.Value;
                 }
             }
 
