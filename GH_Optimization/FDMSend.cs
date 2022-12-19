@@ -39,7 +39,7 @@ namespace FDMremote.GH_Optimization
             pManager.AddGenericParameter("Websocket Objects", "WSC", "websocket objects", GH_ParamAccess.item);
             pManager.AddGenericParameter("FDM Network", "Network", "Network to Optimize", GH_ParamAccess.item); // Network
             pManager.AddGenericParameter("Optimization Parameters", "Params", "Objective functions, tolerances, etc.", GH_ParamAccess.item); // all other parameters
-            pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list);
+            pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list, new Vector3d(0, 0, 0));
             pManager.AddBooleanParameter("Close", "Close", "Close Server; must restart on server side if reconnecting", GH_ParamAccess.item, false);
 
             Param_GenericObject paramobj = (Param_GenericObject)pManager[2];
@@ -53,7 +53,8 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item) ; 
+            //pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item) ; 
+            pManager.AddGenericParameter("Network", "Network", "Network pass through", GH_ParamAccess.item) ; 
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace FDMremote.GH_Optimization
             if (!DA.GetData(0, ref wscObj)) return;
             if (!DA.GetData(1, ref network)) return;
             if (!DA.GetData(2, ref objparams)) return;
-            if (!DA.GetDataList(3, loads)) return;
+            DA.GetDataList(3, loads);
             if (!DA.GetData(4, ref close)) return;
 
             //check that load count is correct
@@ -89,7 +90,8 @@ namespace FDMremote.GH_Optimization
             if (!close) wscObj.send(JsonConvert.SerializeObject(optimprob));
             else wscObj.send("CLOSE");
 
-            DA.SetData(0, JsonConvert.SerializeObject(optimprob));
+            //DA.SetData(0, JsonConvert.SerializeObject(optimprob));
+            DA.SetData(0, network);
         }
 
         /// <summary>
