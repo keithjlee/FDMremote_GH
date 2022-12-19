@@ -1,7 +1,9 @@
 ![](READMEutils/FDMremote.png)
 
 # FDMremote_GH
-FDMremote provides a series of Grasshopper components for Tension/Compression structure form-finding using the Force Density Method.
+FDMremote provides a series of Grasshopper components for Tension/Compression structure form-finding using the Force Density Method. It provides a set of native components for the analysis of small to medium networks, but also provides a a communication link to its sister package, [FDMremote.jl](https://github.com/keithjlee/FDMremote), for extremely fast one-time analysis and multi-step optimization.
+
+Using the native `Analyze` component should be for networks with less than ~300 elements. For much larger networks, use the `FDMstart,FDMsend,FDMlisten` suite of components to communicate with a local Julia server. The above image is a network with ~5000 elements, optimized via Julia to reach an equilibrium solution that reads `FDMremote`.
 
 # Components
 ## Design
@@ -255,7 +257,7 @@ These components form a collection of composable objective functions for optimiz
 
 Minimize distance to a target shape. This is used for inverse form-finding of networks. It amounts to minimizing the distance each node travels from its starting position to reach the equilibrium state. Manipulate the base geometry in Rhino as you see fit, and let this objective function find an tension/compression only geometry that best meets this shape.
 
-### Performance `OBJPErformance`
+### Performance `OBJPerformance`
 ![](READMEutils/performance.png)
 
 Minimize ∑FL across all edges of the network. Proxy measure of structural 'performance'.
