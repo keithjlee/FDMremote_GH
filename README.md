@@ -156,14 +156,14 @@ These can be directly fed into the `Create` and `Analyze` components to recreate
 # Optimization
 These components form the core of `FDMremote`, by providing a link between the Grasshopper/Rhino front end and a high-performing FDM solver/optimizer running in a local Julia server. Communication between the Grasshopper client and the Julia server is through the Websocket protocol. The grasshopper client side is made possible by the [Bengesht](https://github.com/behrooz-tahanzadeh/Bengesht) plugin developed by [Behrooz Tahanzadeh](https://github.com/behrooz-tahanzadeh), modified and integrated into `FDMremote`.
 
-## Installation
-An extra step is required to get FDMremote functionality. Three steps actually.
+`FDMremote_GH` works best with its sister package [FDMremote.jl](https://github.com/keithjlee/FDMremote).
 
+## Installation
 ### Download Julia
 You can download Julia [here](https://julialang.org/). Note that this package only works for Windows machines.
 
 ### Install `FDMremote`
-Once Julia is installed, you can open the REPL from the start menu.
+Once Julia is installed, open it from the start menu.
 
 ![](READMEutils/julia1.PNG)
 
@@ -301,10 +301,4 @@ Minimize the number of elements longer than a threshold length.
 
 Additional input:
 - `Length`: the threshold length. Default = 1000
-
-# Optimization
-FDM remote is tied to [FDMremote.jl](https://github.com/keithjlee/FDMremote), which provides a high-performance backend written in Julia for the solving of large networks and/or optimization. It is not required for the core functionality of the plugin.
-
-
-
 
