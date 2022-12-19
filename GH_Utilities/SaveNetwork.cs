@@ -11,8 +11,6 @@ using Newtonsoft.Json;
 
 namespace FDMremote.GH_Utilities
 {
-   
-
     public class SaveNetwork : GH_Component
     {
         public List<Curve> curves = new List<Curve>();
