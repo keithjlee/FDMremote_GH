@@ -6,7 +6,7 @@ FDMremote provides a series of Grasshopper components for Tension/Compression st
 # Components
 ## Design
 ### Create Network `Create`
-![](READMEutils/create.png)
+![](READMEutils/Create.png)
 
 Generates a `FDMremote.Network` object.
 
