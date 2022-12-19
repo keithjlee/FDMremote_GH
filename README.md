@@ -1,7 +1,7 @@
 ![](READMEutils/FDMremote.png)
 
 # FDMremote_GH
-FDMremote provides a series of Grasshopper components for Tension/Compression structure form-finding using the Force Density Method. It provides a set of native components for the analysis of small to medium networks, but also provides a a communication link to its sister package, [FDMremote.jl](https://github.com/keithjlee/FDMremote), for extremely fast one-time analysis and multi-step optimization. Client-server communication is made possible by integrating the work of [Behrooz Tahanzadeh](https://github.com/behrooz-tahanzadeh) and the integration of his [Bengesht](https://github.com/behrooz-tahanzadeh/Bengesht) plugin for Grasshopper.
+FDMremote provides a series of Grasshopper components for Tension/Compression structure form-finding using the Force Density Method. It provides a set of native components for the analysis of small to medium networks, but also provides a a communication link to its sister package, [FDMremote.jl](https://github.com/keithjlee/FDMremote), for extremely fast one-time analysis and multi-step optimization. Client-server communication is made possible by integrating the work of [Behrooz Tahanzadeh](https://github.com/behrooz-tahanzadeh) and his [Bengesht](https://github.com/behrooz-tahanzadeh/Bengesht) plugin for Grasshopper.
 
 Using the native `Analyze` component should be for networks with less than ~300 elements. For much larger networks, use the `FDMstart,FDMsend,FDMlisten` suite of components to communicate with a local Julia server. The above image is a network with ~5000 elements, optimized via Julia to reach an equilibrium solution that reads `FDMremote`.
 
