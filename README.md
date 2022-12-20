@@ -6,6 +6,7 @@ FDMremote provides a series of Grasshopper components for Tension/Compression st
 Using the native `Analyze` component should be for networks with less than ~300 elements. For much larger networks, use the `FDMstart,FDMsend,FDMlisten` suite of components to communicate with a local Julia server. The above image is a network with ~5000 elements, optimized via Julia to reach an equilibrium solution that reads `FDMremote`.
 
 # Components
+![](READMEutils/OVERVIEW.png)
 ## Design
 ### Create Network `Create`
 ![](READMEutils/Create.png)
