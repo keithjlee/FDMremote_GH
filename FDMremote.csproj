@@ -6,7 +6,7 @@
     <Title>FDMremote</Title>
     <Description>Description of FDMremote</Description>
     <TargetExt>.gha</TargetExt>
-    <BaseOutputPath>D:\d_dev\FDMremote_GH\Release\</BaseOutputPath>
+    <BaseOutputPath>D:\d_dev\FDMremote_GH\Release</BaseOutputPath>
   </PropertyGroup>
 	
   <ItemGroup>
@@ -42,6 +42,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="Experimental\" />
     <Folder Include="GH_Design\Experimental\" />
     <Folder Include="Build\" />
     <Folder Include="Scratch\" />
@@ -110,6 +111,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Target.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\update.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\visualize.png">
