@@ -109,10 +109,22 @@ Inputs:
 - `Weight`: line weight
 - `Show`: toggle visualization
 
+
+### Update Geometry `Update`
+![](READMEutils/update.png)
+
+Updates the curve geometry in Rhino to match that of the solved network--essentially makes a persistent copy of the current solved network to base further design refinements on. Use as a checkmark for intermediate designs that you like.
+
+Inputs:
+- `Update`: if true, updates all geometry. Attach a button here.
+- `Network`: the target reference network for new network edge positions.
+- `GUIDs`: the GUIDs of the network curves. These can be extracted from the curves through the built in `GUID` component in grasshopper.
+
+
 ### Baker `Baker`
 ![](READMEutils/baker.png)
 
-Provides a simplified set of output geometry for baking into Rhino.
+Provides a simplified set of output geometry for baking into Rhino. Use this to save a reference copy of an intermediate design that you are not sure of. IE this tool does not affect your initially drawn geometry, and allows for intermittent design saving.
 
 Inputs:
 - `Network`: network to bake
