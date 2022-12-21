@@ -5,6 +5,7 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using FDMremote.Utilities;
 using FDMremote.Analysis;
+using System.Linq;
 
 namespace FDMremote.GH_Analysis
 {
@@ -35,6 +36,9 @@ namespace FDMremote.GH_Analysis
         {
             pManager.AddPointParameter("Nodes", "N", "Nodes", GH_ParamAccess.list);
             pManager.AddCurveParameter("Edges", "E", "Edges", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Edge Lengths", "L", "Length of edges", GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Start Index", "iStart", "Index of start point in N", GH_ParamAccess.list);
+            pManager.AddIntegerParameter("End Index", "iStart", "Index of end point in N", GH_ParamAccess.list);
             pManager.AddPointParameter("Anchors", "A", "Anchor nodes", GH_ParamAccess.list);
             pManager.AddNumberParameter("ForceDensities", "q", "Force densities of edges", GH_ParamAccess.list);
             pManager.AddIntegerParameter("NumberEdges", "Ne", "Number of edges", GH_ParamAccess.item);
@@ -57,17 +61,23 @@ namespace FDMremote.GH_Analysis
 
             List<double> forces = Solver.Forces(fdmNetwork);
             List<Vector3d> reactions = Solver.Reactions(fdmNetwork);
+            List<double> lengths = fdmNetwork.Curves.Select(curve => curve.GetLength()).ToList();
+            List<int> istart = fdmNetwork.Indices.Select(index => index[0]).ToList();
+            List<int> iend = fdmNetwork.Indices.Select(index => index[1]).ToList();
 
             DA.SetDataList(0, fdmNetwork.Points);
             DA.SetDataList(1, fdmNetwork.Curves);
-            DA.SetDataList(2, fdmNetwork.Anchors);
-            DA.SetDataList(3, fdmNetwork.ForceDensities);
-            DA.SetData(4, fdmNetwork.Ne);
-            DA.SetData(5, fdmNetwork.Nn);
-            DA.SetDataList(6, fdmNetwork.N);
-            DA.SetDataList(7, fdmNetwork.F);
-            DA.SetDataList(8, forces);
-            DA.SetDataList(9, reactions);
+            DA.SetDataList(2, lengths);
+            DA.SetDataList(3, istart);
+            DA.SetDataList(4, iend);
+            DA.SetDataList(5, fdmNetwork.Anchors);
+            DA.SetDataList(6, fdmNetwork.ForceDensities);
+            DA.SetData(7, fdmNetwork.Ne);
+            DA.SetData(8, fdmNetwork.Nn);
+            DA.SetDataList(9, fdmNetwork.N);
+            DA.SetDataList(10, fdmNetwork.F);
+            DA.SetDataList(11, forces);
+            DA.SetDataList(12, reactions);
 
         }
 
