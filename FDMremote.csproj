@@ -6,7 +6,7 @@
     <Title>FDMremote</Title>
     <Description>Description of FDMremote</Description>
     <TargetExt>.gha</TargetExt>
-    <BaseOutputPath>C:\Users\keithjl\OneDrive - Massachusetts Institute of Technology\Projects\FDM_Adam\FDMremote\Build</BaseOutputPath>
+    <BaseOutputPath>C:\Users\keithjl\Documents\dev\FDMremote_GH\Build</BaseOutputPath>
   </PropertyGroup>
 	
   <ItemGroup>
@@ -43,7 +43,6 @@
   
   <ItemGroup>
     <Folder Include="Experimental\" />
-    <Folder Include="GH_Design\Experimental\" />
     <Folder Include="Build\" />
     <Folder Include="Scratch\" />
   </ItemGroup>

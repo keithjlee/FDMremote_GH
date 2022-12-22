@@ -8,8 +8,10 @@ using Rhino;
 
 namespace FDMremote.GH_Utilities
 {
+    
     public class UpdateCurves : GH_Component
     {
+        private readonly object _lock = new object();
         /// <summary>
         /// Initializes a new instance of the UpdateCurves class.
         /// </summary>
@@ -58,15 +60,39 @@ namespace FDMremote.GH_Utilities
             List <Guid> guids = network.Guids;
             var doc = RhinoDoc.ActiveDoc;
 
+            //var ghdobjs = this.OnPingDocument().Objects;
+
             if (update)
             {
+                //var oldcurve = doc.Objects.FindId(guids[i]);
+                var ghdobjs = this.OnPingDocument().Objects;
+                foreach (IGH_DocumentObject Obj in ghdobjs)
+                {
+                    if (Obj.NickName == "Pipeline")
+                    {
+                        GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                        comp.Locked = true;
+                        comp.ExpireSolution(false);
+                    }
+                }
                 for (int i = 0; i < guids.Count; i++)
                 {
                     Guid guid = guids[i];
-                    Curve newcurve = network.Curves[i];
+
+                    Curve newcurve = (Curve)network.Curves[i].Duplicate();
 
                     doc.Objects.Replace(guid, newcurve);
+
                 }
+                foreach (IGH_DocumentObject Obj in ghdobjs)
+                {
+                    if (Obj.NickName == "Pipeline")
+                    {
+                        GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                        comp.Locked = false;
+                    }
+                }
+
             }
         }
 
