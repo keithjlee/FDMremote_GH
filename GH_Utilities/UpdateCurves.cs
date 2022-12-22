@@ -60,19 +60,19 @@ namespace FDMremote.GH_Utilities
             List <Guid> guids = network.Guids;
             var doc = RhinoDoc.ActiveDoc;
 
-            //var ghdobjs = this.OnPingDocument().Objects;
 
             if (update)
             {
                 //var oldcurve = doc.Objects.FindId(guids[i]);
-                var ghdobjs = this.OnPingDocument().Objects;
+                var ghd = this.OnPingDocument();
+                var ghdobjs = ghd.Objects;
                 foreach (IGH_DocumentObject Obj in ghdobjs)
                 {
-                    if (Obj.NickName == "Pipeline")
+                    if (Obj.NickName == "Pipeline" || Obj.NickName == "FDMlisten")
                     {
                         GH_ActiveObject comp = (GH_ActiveObject)Obj;
                         comp.Locked = true;
-                        comp.ExpireSolution(false);
+                        //comp.ExpireSolution(false);
                     }
                 }
                 for (int i = 0; i < guids.Count; i++)
@@ -86,13 +86,15 @@ namespace FDMremote.GH_Utilities
                 }
                 foreach (IGH_DocumentObject Obj in ghdobjs)
                 {
-                    if (Obj.NickName == "Pipeline")
+                    if (Obj.NickName == "Pipeline"|| Obj.NickName == "FDMlisten")
                     {
                         GH_ActiveObject comp = (GH_ActiveObject)Obj;
                         comp.Locked = false;
+                        comp.ExpireSolution(false);
                     }
                 }
 
+                ghd.NewSolution(false);
             }
         }
 

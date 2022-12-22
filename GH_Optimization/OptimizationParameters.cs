@@ -40,9 +40,10 @@ namespace FDMremote.GH_Optimization
             pManager.AddBooleanParameter("Show Iterations", "ShowIter", "Show intermittent solutions", GH_ParamAccess.item, true);
 
             //default null objective
-            Param_GenericObject paramobj = (Param_GenericObject)pManager[0];
-            OBJ defaultobj = new OBJNull();
-            paramobj.PersistentData.Append(new GH_ObjectWrapper(defaultobj));
+            //Param_GenericObject paramobj = (Param_GenericObject)pManager[0];
+            //OBJ defaultobj = new OBJNull();
+            //paramobj.PersistentData.Append(new GH_ObjectWrapper(defaultobj));
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             //initialize
-            List<OBJ> objs = new List<OBJ>();
+            //List<OBJ> objs = new List<OBJ>();
             double lb = 0.1;
             double ub = 100.0;
             double abstol = 1e-3;
@@ -70,7 +71,14 @@ namespace FDMremote.GH_Optimization
             bool show = true;
 
             //assign
-            if (!DA.GetDataList(0, objs)) return;
+            //if (!DA.GetDataList(0, objs)) return;
+            List<OBJ> objs = new List<OBJ>();
+            if (!DA.GetDataList(0, objs))
+            {
+                objs = new List<OBJ>{ new OBJNull()};
+                Params.Input[0].AddVolatileData(new Grasshopper.Kernel.Data.GH_Path(0), 0, objs);
+            }
+            //DA.GetDataList(0, objs);
             DA.GetData(1, ref lb);
             DA.GetData(2, ref ub);
             DA.GetData(3, ref abstol);
