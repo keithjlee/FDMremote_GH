@@ -15,6 +15,7 @@ namespace FDMremote.GH_Design.Experimental
         private List<Guid> guids;
         private Network network;
         private RhinoDoc doc;
+        private List<IGH_DocumentObject> relevantObjs;
         /// <summary>
         /// Initializes a new instance of the UpdateExp class.
         /// </summary>
@@ -58,13 +59,16 @@ namespace FDMremote.GH_Design.Experimental
             GH_Document ghd = this.OnPingDocument();
             var ghdobjs = ghd.Objects;
 
-            foreach (IGH_DocumentObject Obj in ghdobjs)
+            relevantObjs = new List<IGH_DocumentObject>();
+            foreach (IGH_DocumentObject obj in ghdobjs)
             {
-                if (Obj.NickName == "Pipeline")
-                {
-                    GH_ActiveObject comp = (GH_ActiveObject)Obj;
-                    comp.ExpireSolution(false);
-                }
+                if (obj.NickName == "Pipeline") relevantObjs.Add(obj);
+            }
+
+            foreach (IGH_DocumentObject Obj in relevantObjs)
+            {
+                GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.ExpireSolution(false);
             }
 
             if (update)
@@ -78,13 +82,10 @@ namespace FDMremote.GH_Design.Experimental
         private void updater(GH_Document gdoc)
         {
             var ghdobjs = gdoc.Objects;
-            foreach (IGH_DocumentObject Obj in ghdobjs)
+            foreach (IGH_DocumentObject Obj in relevantObjs)
             {
-                if (Obj.NickName == "Pipeline")
-                {
-                    GH_ActiveObject comp = (GH_ActiveObject)Obj;
-                    comp.Locked = true;
-                }
+                GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.Locked = true;
             }
 
             for (int i = 0; i < guids.Count; i++)
@@ -97,13 +98,10 @@ namespace FDMremote.GH_Design.Experimental
 
             }
 
-            foreach (IGH_DocumentObject Obj in ghdobjs)
+            foreach (IGH_DocumentObject Obj in relevantObjs)
             {
-                if (Obj.NickName == "Pipeline")
-                {
-                    GH_ActiveObject comp = (GH_ActiveObject)Obj;
-                    comp.Locked = false;
-                }
+                GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.Locked = false;
             }
         }
 

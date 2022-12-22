@@ -6,12 +6,18 @@ using Rhino.Geometry;
 using FDMremote.Utilities;
 using Rhino;
 using FDMremote.Optimization;
+using Eto.Forms;
+using Rhino.UI;
 
 namespace FDMremote.GH_Utilities
 {
     
     public class UpdateCurves : GH_Component
     {
+        private List<Guid> guids;
+        private Network network;
+        private RhinoDoc doc;
+        private List<IGH_DocumentObject> relevantObjs;
         /// <summary>
         /// Initializes a new instance of the UpdateCurves class.
         /// </summary>
@@ -27,10 +33,8 @@ namespace FDMremote.GH_Utilities
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            IGH_Param param = new Grasshopper.Kernel.Parameters.Param_Guid();
             pManager.AddBooleanParameter("Update curves?", "Update", "Update the drawn curves to new positions", GH_ParamAccess.item, false);
             pManager.AddGenericParameter("Target Network", "Network", "Target network to update curves to", GH_ParamAccess.item);
-            //pManager.AddParameter(param, "Curve GUIDs", "GUIDs", "GUID of curves", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -44,63 +48,62 @@ namespace FDMremote.GH_Utilities
         /// This is the method that actually does the work.
         /// </summary>
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
-        /// 
-
-
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             bool update = false;
-            Network network = new Network();
-            //List<Guid> guids = new List<Guid>();
 
             DA.GetData(0, ref update);
             if (!DA.GetData(1, ref network)) return;
-            //if (!DA.GetDataList(2, guids)) return;
 
-            List <Guid> guids = network.Guids;
-            var doc = RhinoDoc.ActiveDoc;
+            guids = network.Guids;
+            doc = RhinoDoc.ActiveDoc;
 
+            GH_Document ghd = this.OnPingDocument();
+            var ghdobjs = ghd.Objects;
+
+            relevantObjs = new List<IGH_DocumentObject>();
+            foreach (IGH_DocumentObject obj in ghdobjs)
+            {
+                if (obj.NickName == "Pipeline") relevantObjs.Add(obj);
+            }
+
+            foreach (IGH_DocumentObject Obj in relevantObjs)
+            {
+                GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.ExpireSolution(false);
+            }
 
             if (update)
             {
-                //var oldcurve = doc.Objects.FindId(guids[i]);
-                var ghd = this.OnPingDocument();
+                ghd.ScheduleSolution(10, updater);
+            }
+
+        }
 
 
-                var ghdobjs = ghd.Objects;
+        private void updater(GH_Document gdoc)
+        {
+            var ghdobjs = gdoc.Objects;
+            foreach (IGH_DocumentObject Obj in relevantObjs)
+            {
+                GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.Locked = true;
+            }
 
+            for (int i = 0; i < guids.Count; i++)
+            {
+                Guid guid = guids[i];
 
-                foreach (IGH_DocumentObject Obj in ghdobjs)
-                {
-                    if (Obj.NickName == "Pipeline")
-                    {
-                        GH_ActiveObject comp = (GH_ActiveObject)Obj;
-                        comp.Locked = true;
-                        //comp.ExpireSolution(false);
-                    }
-                }
+                Curve newcurve = (Curve)network.Curves[i].Duplicate();
 
-                for (int i = 0; i < guids.Count; i++)
-                {
-                    Guid guid = guids[i];
+                doc.Objects.Replace(guid, newcurve);
 
-                    Curve newcurve = (Curve)network.Curves[i].Duplicate();
+            }
 
-                    doc.Objects.Replace(guid, newcurve);
-
-                }
-
-                foreach (IGH_DocumentObject Obj in ghdobjs)
-                {
-                    if (Obj.NickName == "Pipeline")
-                    {
-                        GH_ActiveObject comp = (GH_ActiveObject)Obj;
-                        comp.Locked = false;
-                        comp.ExpireSolution(false);
-                    }
-                }
-
-                ghd.NewSolution(false);
+            foreach (IGH_DocumentObject Obj in relevantObjs)
+            {
+                GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.Locked = false;
             }
         }
 
