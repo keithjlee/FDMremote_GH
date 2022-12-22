@@ -28,7 +28,7 @@ namespace FDMremote.GH_Utilities
             IGH_Param param = new Grasshopper.Kernel.Parameters.Param_Guid();
             pManager.AddBooleanParameter("Update curves?", "Update", "Update the drawn curves to new positions", GH_ParamAccess.item, false);
             pManager.AddGenericParameter("Target Network", "Network", "Target network to update curves to", GH_ParamAccess.item);
-            pManager.AddParameter(param, "Curve GUIDs", "GUIDs", "GUID of curves", GH_ParamAccess.list);
+            //pManager.AddParameter(param, "Curve GUIDs", "GUIDs", "GUID of curves", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -42,16 +42,20 @@ namespace FDMremote.GH_Utilities
         /// This is the method that actually does the work.
         /// </summary>
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
+        /// 
+
+
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             bool update = false;
             Network network = new Network();
-            List<Guid> guids = new List<Guid>();
+            //List<Guid> guids = new List<Guid>();
 
             DA.GetData(0, ref update);
             if (!DA.GetData(1, ref network)) return;
-            if (!DA.GetDataList(2, guids)) return;
+            //if (!DA.GetDataList(2, guids)) return;
 
+            List <Guid> guids = network.Guids;
             var doc = RhinoDoc.ActiveDoc;
 
             if (update)
@@ -64,9 +68,9 @@ namespace FDMremote.GH_Utilities
                     doc.Objects.Replace(guid, newcurve);
                 }
             }
-            
-            
         }
+
+
 
         /// <summary>
         /// Provides an Icon for the component.

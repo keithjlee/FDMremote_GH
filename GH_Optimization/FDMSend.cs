@@ -42,6 +42,7 @@ namespace FDMremote.GH_Optimization
             pManager.AddVectorParameter("Load", "P", "Applied load", GH_ParamAccess.list, new Vector3d(0, 0, 0));
             pManager.AddBooleanParameter("Close", "Close", "Close Server; must restart on server side if reconnecting", GH_ParamAccess.item, false);
 
+            pManager[2].Optional = true;
             Param_GenericObject paramobj = (Param_GenericObject)pManager[2];
             OBJParameters p = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 400);
             paramobj.PersistentData.Append(new GH_ObjectWrapper(p));
@@ -64,7 +65,6 @@ namespace FDMremote.GH_Optimization
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             //initialize
-            //Network network = new Network();
             OBJParameters objparams = new OBJParameters();
             List<Vector3d> loads = new List<Vector3d>();
             bool close = false;
@@ -72,7 +72,10 @@ namespace FDMremote.GH_Optimization
             Network network = new Network();
 
             if (!DA.GetData(0, ref wscObj)) return;
-            if (!DA.GetData(1, ref network)) return;
+            if (!DA.GetData(1, ref network))
+            {
+                objparams = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 400);
+            }
             if (!DA.GetData(2, ref objparams)) return;
             DA.GetDataList(3, loads);
             if (!DA.GetData(4, ref close)) return;
@@ -86,7 +89,7 @@ namespace FDMremote.GH_Optimization
                 }
             }
 
-            OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
+            OptimizationProblem optimprob = new OptimizationProblem(network, (OBJParameters)objparams, loads);
             if (!close) wscObj.send(JsonConvert.SerializeObject(optimprob));
             else wscObj.send("CLOSE");
 

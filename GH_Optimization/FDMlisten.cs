@@ -43,6 +43,7 @@ namespace FDMremote.GH_Optimization
         double loss;
         int iter;
         List<double> trace;
+        List<Guid> guids;
 
         private void Initialize()
         {
@@ -114,6 +115,7 @@ namespace FDMremote.GH_Optimization
             indices = network.Indices;
             anchors = network.Anchors;
             tolerance = network.Tolerance;
+            guids = network.Guids;
 
             if (this.ghDocument == null)
             {
@@ -182,7 +184,7 @@ namespace FDMremote.GH_Optimization
             z = receiver.Z;
             curves = CurveMaker(indices, x, y, z);
 
-            solvednetwork = new Network(anchors, curves, q, tolerance);
+            solvednetwork = new Network(anchors, curves, guids, q, tolerance);
         }
 
         private List<Curve> CurveMaker(List<int[]> indices, List<double> x, List<double> y, List<double> z)

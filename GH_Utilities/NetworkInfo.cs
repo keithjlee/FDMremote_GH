@@ -48,6 +48,9 @@ namespace FDMremote.GH_Analysis
             pManager.AddNumberParameter("MemberForces", "Force", "Internal forces assuming L = stressed length", GH_ParamAccess.list);
             pManager.AddVectorParameter("Reaction Forces", "Reactions", "Force vectors acting at anchor points", GH_ParamAccess.list);
 
+            IGH_Param param = new Grasshopper.Kernel.Parameters.Param_Guid();
+            pManager.AddParameter(param, "GUIDs", "GUIDs", "Edge GUIDs", GH_ParamAccess.list);
+
         }
 
         /// <summary>
@@ -78,6 +81,7 @@ namespace FDMremote.GH_Analysis
             DA.SetDataList(10, fdmNetwork.F);
             DA.SetDataList(11, forces);
             DA.SetDataList(12, reactions);
+            DA.SetDataList(13, fdmNetwork.Guids);
 
         }
 
