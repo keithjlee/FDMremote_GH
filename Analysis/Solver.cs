@@ -74,15 +74,8 @@ namespace FDMremote.Analysis
                 q.Add(item);
             });
 
-            // copy guids
-            List<Guid> guids = new List<Guid>(fdm.FDMnetwork.Guids.Count);
-            fdm.FDMnetwork.Guids.ForEach((item) =>
-            {
-                guids.Add(item);
-            });
-
             // create new network
-            Network network = new Network(anchors, curves, guids, q, fdm.Tolerance);
+            Network network = new Network(anchors, curves, q, fdm.Tolerance);
 
             return network;
         }

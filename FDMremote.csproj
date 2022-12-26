@@ -6,7 +6,7 @@
     <Title>FDMremote</Title>
     <Description>Description of FDMremote</Description>
     <TargetExt>.gha</TargetExt>
-    <BaseOutputPath>C:\Users\keithjl\Documents\dev\FDMremote_GH\Build</BaseOutputPath>
+    <BaseOutputPath>Build\</BaseOutputPath>
   </PropertyGroup>
 	
   <ItemGroup>

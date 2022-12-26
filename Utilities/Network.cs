@@ -19,11 +19,10 @@ namespace FDMremote.Utilities
         /// </summary>
         /// <param name="anchors"></param>
         /// <param name="curves"></param>
-        public Network(List<Point3d> anchors, List<Curve> curves, List<Guid> guids, double tol)
+        public Network(List<Point3d> anchors, List<Curve> curves, double tol)
         {
             Anchors = anchors;
             Curves = curves;
-            Guids = guids;
             Tolerance = tol;
             ForceDensities = new List<double>();
 
@@ -43,11 +42,10 @@ namespace FDMremote.Utilities
         /// <param name="points"></param>
         /// <param name="curves"></param>
         /// <param name="q"></param>
-        public Network(List<Point3d> anchors, List<Curve> curves, List<Guid> guids, double q, double tol)
+        public Network(List<Point3d> anchors, List<Curve> curves, double q, double tol)
         {
             Anchors = anchors;
             Curves = curves;
-            Guids = guids;
             Tolerance = tol;
             ForceDensities = new List<double>();
 
@@ -68,7 +66,7 @@ namespace FDMremote.Utilities
         /// <param name="curves"></param>
         /// <param name="q"></param>
         /// <exception cref="ArgumentException"></exception>
-        public Network(List<Point3d> anchors, List<Curve> curves, List<Guid> guids, List<double> q, double tol)
+        public Network(List<Point3d> anchors, List<Curve> curves, List<double> q, double tol)
         {
             if (curves.Count != q.Count && q.Count != 1)
             {
@@ -77,7 +75,6 @@ namespace FDMremote.Utilities
 
             Anchors = anchors;
             Curves = curves;
-            Guids = guids;
             ForceDensities = new List<double>();
             Tolerance = tol;
 
@@ -119,7 +116,6 @@ namespace FDMremote.Utilities
 
         public List<Point3d> Anchors;//input
         public List<Curve> Curves;//input
-        public List<Guid> Guids;//Curve GUIDs
         public List<double> ForceDensities; // input
         public double Tolerance; //input
         public List<Point3d> Points; //Topologize

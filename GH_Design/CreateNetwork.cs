@@ -28,9 +28,8 @@ namespace FDMremote
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            IGH_Param param = new Grasshopper.Kernel.Parameters.Param_Guid();
+            
             pManager.AddCurveParameter("Edges", "E", "Edges between nodes", GH_ParamAccess.list);
-            pManager.AddParameter(param, "Edge GUIDs", "GUIDs", "GUID of edges", GH_ParamAccess.list);
             pManager.AddPointParameter("Anchors", "A", "Anchor points", GH_ParamAccess.list);
             pManager.AddNumberParameter("ForceDensities", "q", "Force density of edges", GH_ParamAccess.list, 1.0);
             pManager.AddNumberParameter("IntersectionTolerance", "tol", "Geometric tolerance for connecting geometry", GH_ParamAccess.item, 0.1);
@@ -53,25 +52,18 @@ namespace FDMremote
         {
             //initialize
             List<Curve> edges = new List<Curve>();
-            List<Guid> guids = new List<Guid>();
             List<Point3d> anchors = new List<Point3d>();
             List<double> q = new List<double>();
             double tol = 1.0;
 
             //assign
             if (!DA.GetDataList(0, edges)) return;
-            if (!DA.GetDataList(1, guids)) return;
-            if (!DA.GetDataList(2, anchors)) return;
-            if (!DA.GetDataList(3, q)) return;
-            DA.GetData(4, ref tol);
-
-            if (edges.Count != guids.Count)
-            {
-                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Length of GUIDs must match length of edges");
-            }
+            if (!DA.GetDataList(1, anchors)) return;
+            if (!DA.GetDataList(2, q)) return;
+            DA.GetData(3, ref tol);
 
             //create network
-            Network fdmNetwork = new Network(anchors, edges, guids, q, tol);
+            Network fdmNetwork = new Network(anchors, edges, q, tol);
 
             //Check sufficent anchor definitions
             if (!fdmNetwork.AnchorCheck())

@@ -33,8 +33,10 @@ namespace FDMremote.GH_Utilities
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            IGH_Param param = new Grasshopper.Kernel.Parameters.Param_Guid();
             pManager.AddBooleanParameter("Update curves?", "Update", "Update the drawn curves to new positions", GH_ParamAccess.item, false);
             pManager.AddGenericParameter("Target Network", "Network", "Target network to update curves to", GH_ParamAccess.item);
+            pManager.AddParameter(param, "Edge GUIDs", "GUIDs", "GUIDs of input network edges", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -51,11 +53,17 @@ namespace FDMremote.GH_Utilities
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             bool update = false;
+            guids = new List<Guid>();
 
             DA.GetData(0, ref update);
             if (!DA.GetData(1, ref network)) return;
+            if (!DA.GetDataList(2, guids)) return;
 
-            guids = network.Guids;
+            if (network.Curves.Count != guids.Count)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Length of GUIDs must match length of edges in network");
+            }
+
             doc = RhinoDoc.ActiveDoc;
 
             GH_Document ghd = this.OnPingDocument();
