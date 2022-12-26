@@ -48,6 +48,10 @@ namespace FDMremote.GH_Analysis
             pManager.AddNumberParameter("MemberForces", "Force", "Internal forces assuming L = stressed length", GH_ParamAccess.list);
             pManager.AddVectorParameter("Reaction Forces", "Reactions", "Force vectors acting at anchor points", GH_ParamAccess.list);
 
+            pManager.HideParameter(0);
+            pManager.HideParameter(1);
+            pManager.HideParameter(5);
+
         }
 
         /// <summary>

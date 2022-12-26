@@ -39,7 +39,7 @@ namespace FDMremote.GH_Utilities
         {
             pManager.AddGenericParameter("Network to save", "Network", "Network to save; used for output network of FDMlisten", GH_ParamAccess.item);
             pManager.AddVectorParameter("Load(s)", "P", "Applied load to network", GH_ParamAccess.list, new Vector3d(0,0,0));
-            pManager.AddTextParameter("Folder Directory", "Dir", @"Written like: C:\\Users\\folder\\", GH_ParamAccess.item);
+            pManager.AddTextParameter("Folder Directory", "Dir", @"Written like: C:\\Users\\folder\\", GH_ParamAccess.item, "C:\\Temp\\");
             pManager.AddTextParameter("File Name", "Name", "Name of file, ending in .json", GH_ParamAccess.item, "network.json");
             pManager.AddBooleanParameter("Freeze Network", "Freeze", "Click to freeze current state", GH_ParamAccess.item, false);
         }

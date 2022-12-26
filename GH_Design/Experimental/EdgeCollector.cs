@@ -14,7 +14,7 @@ namespace FDMremote.GH_Design.Experimental
         /// Initializes a new instance of the EdgeCollector class.
         /// </summary>
         public EdgeCollector()
-          : base("EdgeCollector", "Nickname",
+          : base("EdgeCollector", "Collector",
               "Description",
               "FDMremote", "Experimental")
         {
@@ -49,7 +49,10 @@ namespace FDMremote.GH_Design.Experimental
 
             var rhinocurves = doc.Objects.FindByObjectType(Rhino.DocObjects.ObjectType.Curve); // get all curves
 
+            //var rhinopoints = doc.Objects.FindByObjectType(Rhino.DocObjects.ObjectType.Point);
+
             List<Curve> outcurves = new List<Curve>();
+            //List<Point> outpoints = new List<Point>();
             List<Guid> outids = new List<Guid>();
 
             foreach (RhinoObject obj in rhinocurves)
@@ -60,6 +63,12 @@ namespace FDMremote.GH_Design.Experimental
                 Guid id = obj.Id;
                 outids.Add(id);
             }
+
+            //foreach (RhinoObject obj in rhinopoints)
+            //{
+            //    Point point = (Point)obj.Geometry;
+            //    outpoints.Add(point);
+            //}
 
             DA.SetDataList(0, outcurves);
             DA.SetDataList(1, outids);
