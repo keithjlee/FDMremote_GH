@@ -26,8 +26,8 @@ namespace FDMremote.GH_Utilities
         /// Initializes a new instance of the SaveNetwork class.
         /// </summary>
         public SaveNetwork()
-          : base("Save Network", "Save",
-              "Save/freeze the output network of an optimization run",
+          : base("Freeze Network", "Freeze",
+              "Save/freeze a network",
               "FDMremote", "Utilities")
         {
         }
@@ -41,7 +41,7 @@ namespace FDMremote.GH_Utilities
             pManager.AddVectorParameter("Load(s)", "P", "Applied load to network", GH_ParamAccess.list, new Vector3d(0,0,0));
             pManager.AddTextParameter("Folder Directory", "Dir", @"Written like: C:\\Users\\folder\\", GH_ParamAccess.item, "C:\\Temp\\");
             pManager.AddTextParameter("File Name", "Name", "Name of file, ending in .json", GH_ParamAccess.item, "network.json");
-            pManager.AddBooleanParameter("Freeze Network", "Freeze", "Click to freeze current state", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Save Network", "Freeze", "Click to freeze current state", GH_ParamAccess.item, false);
         }
 
         /// <summary>
@@ -75,31 +75,23 @@ namespace FDMremote.GH_Utilities
 
             if (freeze)
             {
-                if (!DA.GetData(2, ref folder))
+                curves = network.Curves;
+                anchors = network.Anchors;
+                q = network.ForceDensities;
+
+                try
                 {
-                    curves = network.Curves;
-                    anchors = network.Anchors;
-                    q = network.ForceDensities;
+                    DA.GetData(2, ref folder);
+                    var fn = Path.Combine(folder, file);
+
+                    Matrix<double> P = Solver.PMaker(loads, network.N);
+                    InformationObject obj = new InformationObject(network, P, 0);
+                    data = JsonConvert.SerializeObject(obj);
+
+
+                    System.IO.File.WriteAllText(fn, data);
                 }
-                else
-                {
-                    try
-                    {
-                        DA.GetData(2, ref folder);
-                        var fn = Path.Combine(folder, file);
-                        curves = network.Curves;
-                        anchors = network.Anchors;
-                        q = network.ForceDensities;
-
-                        Matrix<double> P = Solver.PMaker(loads, network.N);
-                        InformationObject obj = new InformationObject(network, P, 0);
-                        data = JsonConvert.SerializeObject(obj);
-
-
-                        System.IO.File.WriteAllText(fn, data);
-                    }
-                    catch { }
-                }
+                catch { }
 
 
             }
