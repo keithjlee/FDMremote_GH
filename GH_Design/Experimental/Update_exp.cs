@@ -86,6 +86,7 @@ namespace FDMremote.GH_Design.Experimental
             foreach (IGH_DocumentObject Obj in relevantObjs)
             {
                 GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                //comp.ExpireSolution(false);
                 comp.Locked = true;
             }
 
@@ -106,6 +107,7 @@ namespace FDMremote.GH_Design.Experimental
                 comp.Locked = false;
             }
 
+            //gdoc.NewSolution(false);
         }
 
         /// <summary>
