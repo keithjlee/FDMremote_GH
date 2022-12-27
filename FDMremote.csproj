@@ -45,7 +45,6 @@
   <ItemGroup>
     <Folder Include="Experimental\" />
     <Folder Include="Build\" />
-    <Folder Include="GH_Design\Experimental\" />
     <Folder Include="Scratch\" />
   </ItemGroup>
   
