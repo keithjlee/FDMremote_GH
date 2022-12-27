@@ -76,18 +76,12 @@ namespace FDMremote.GH_Utilities
                 if (obj.NickName == "Pipeline") relevantObjs.Add(obj);
             }
 
-            foreach (IGH_DocumentObject Obj in relevantObjs)
-            {
-                GH_ActiveObject comp = (GH_ActiveObject)Obj;
-                comp.ExpireSolution(false);
-            }
-
             if (update)
             {
                 ghd.ScheduleSolution(10, updater);
             }
 
-            
+
 
         }
 
@@ -97,6 +91,7 @@ namespace FDMremote.GH_Utilities
             foreach (IGH_DocumentObject Obj in relevantObjs)
             {
                 GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                //comp.ExpireSolution(false);
                 comp.Locked = true;
             }
 
@@ -113,9 +108,11 @@ namespace FDMremote.GH_Utilities
             foreach (IGH_DocumentObject Obj in relevantObjs)
             {
                 GH_ActiveObject comp = (GH_ActiveObject)Obj;
+                comp.ClearData();
                 comp.Locked = false;
             }
 
+            //gdoc.NewSolution(false);
         }
 
 

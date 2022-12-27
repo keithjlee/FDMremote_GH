@@ -43,7 +43,7 @@ namespace FDMremote.GH_Optimization
             //Param_GenericObject paramobj = (Param_GenericObject)pManager[0];
             //OBJ defaultobj = new OBJNull();
             //paramobj.PersistentData.Append(new GH_ObjectWrapper(defaultobj));
-            pManager[0].Optional = true;
+            //pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -73,11 +73,7 @@ namespace FDMremote.GH_Optimization
             //assign
             //if (!DA.GetDataList(0, objs)) return;
             List<OBJ> objs = new List<OBJ>();
-            if (!DA.GetDataList(0, objs))
-            {
-                objs = new List<OBJ>{ new OBJNull()};
-                Params.Input[0].AddVolatileData(new Grasshopper.Kernel.Data.GH_Path(0), 0, objs);
-            }
+            if (!DA.GetDataList(0, objs)) 
             //DA.GetDataList(0, objs);
             DA.GetData(1, ref lb);
             DA.GetData(2, ref ub);

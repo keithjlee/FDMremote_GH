@@ -12,10 +12,12 @@
   <ItemGroup>
     <Compile Remove="GH_Design\Experimental\EdgeCollector.cs" />
     <Compile Remove="GH_Design\Experimental\Topologize.cs" />
+    <Compile Remove="GH_Design\Experimental\Update_exp.cs" />
     <Compile Remove="GH_Optimization\receive_OLD.cs" />
     <Compile Remove="GH_Optimization\send_OLD.cs" />
     <Compile Remove="GH_Utilities\Export.cs" />
     <Compile Remove="OBJ_GH\NullObjective.cs" />
+    <Compile Remove="OBJ_GH\ObjectiveNull.cs" />
   </ItemGroup>
   
   <ItemGroup>
@@ -45,6 +47,7 @@
   <ItemGroup>
     <Folder Include="Experimental\" />
     <Folder Include="Build\" />
+    <Folder Include="GH_Design\Experimental\" />
     <Folder Include="Scratch\" />
   </ItemGroup>
   

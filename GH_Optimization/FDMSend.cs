@@ -44,7 +44,8 @@ namespace FDMremote.GH_Optimization
 
             pManager[2].Optional = true;
             //Param_GenericObject paramobj = (Param_GenericObject)pManager[2];
-            //OBJParameters p = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 400);
+            //OBJ nullobj = new OBJNull();
+            //OBJParameters p = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { nullobj }, true, 20, 400);
             //paramobj.PersistentData.Append(new GH_ObjectWrapper(p));
 
         }
@@ -54,8 +55,9 @@ namespace FDMremote.GH_Optimization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            //pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item) ; 
-            pManager.AddGenericParameter("Network", "Network", "Network pass through", GH_ParamAccess.item) ; 
+            
+            pManager.AddGenericParameter("Network", "Network", "Network pass through", GH_ParamAccess.item) ;
+            //pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -75,7 +77,7 @@ namespace FDMremote.GH_Optimization
             if (!DA.GetData(1, ref network)) return;
 
             OBJParameters objparams = new OBJParameters();
-            //DA.GetData(2, ref objparams);
+            //if (!DA.GetData(2, ref objparams)) return;
             if (!DA.GetData(2, ref objparams))
             {
                 objparams = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 400);
@@ -97,8 +99,9 @@ namespace FDMremote.GH_Optimization
             if (!close) wscObj.send(JsonConvert.SerializeObject(optimprob));
             else wscObj.send("CLOSE");
 
-            //DA.SetData(0, JsonConvert.SerializeObject(optimprob));
+            
             DA.SetData(0, network);
+            //DA.SetData(1, JsonConvert.SerializeObject(optimprob));
         }
 
         /// <summary>
