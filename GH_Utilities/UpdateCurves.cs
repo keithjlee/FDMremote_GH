@@ -17,6 +17,7 @@ namespace FDMremote.GH_Utilities
         private List<Guid> guids;
         private Network network;
         private RhinoDoc doc;
+        private GH_Document ghd;
         private List<IGH_DocumentObject> relevantObjs;
         /// <summary>
         /// Initializes a new instance of the UpdateCurves class.
@@ -66,7 +67,7 @@ namespace FDMremote.GH_Utilities
 
             doc = RhinoDoc.ActiveDoc;
 
-            GH_Document ghd = this.OnPingDocument();
+            ghd = this.OnPingDocument();
             var ghdobjs = ghd.Objects;
 
             relevantObjs = new List<IGH_DocumentObject>();
@@ -86,12 +87,13 @@ namespace FDMremote.GH_Utilities
                 ghd.ScheduleSolution(10, updater);
             }
 
+            
+
         }
 
 
         private void updater(GH_Document gdoc)
         {
-            var ghdobjs = gdoc.Objects;
             foreach (IGH_DocumentObject Obj in relevantObjs)
             {
                 GH_ActiveObject comp = (GH_ActiveObject)Obj;
@@ -113,6 +115,7 @@ namespace FDMremote.GH_Utilities
                 GH_ActiveObject comp = (GH_ActiveObject)Obj;
                 comp.Locked = false;
             }
+
         }
 
 
