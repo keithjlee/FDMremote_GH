@@ -328,12 +328,14 @@ namespace FDMremote.Analysis
         /// <returns></returns>
         public static List<Vector3d> Reactions(Network network)
         {
+            // initialize
             List<double> internalforces = Forces(network.Curves, network.ForceDensities);
             Point3dList startpoints = new Point3dList();
             Point3dList endpoints = new Point3dList();
 
             List<Vector3d> anchorforces = new List<Vector3d>();
 
+            // start and end points of each edge
             foreach (Curve curve in network.Curves)
             {
                 startpoints.Add(curve.PointAtStart);
@@ -342,6 +344,7 @@ namespace FDMremote.Analysis
 
             for (int i = 0; i < network.F.Count; i++)
             {
+                //for each fixed point (anchor)
                 var index = network.F[i];
                 var point = network.Points[index];
 

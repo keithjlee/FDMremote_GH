@@ -82,11 +82,11 @@ namespace FDMremote.GH_Analysis
             Network network = new Network();
             List<Vector3d> loads = new List<Vector3d>();
             double scale = 1.0;
-            c0 = System.Drawing.Color.FromArgb(230, 231, 232);
-            c1 = System.Drawing.Color.FromArgb(62, 168, 222);
-            cload = System.Drawing.Color.FromArgb(255, 123, 172);
+            c0 = System.Drawing.Color.FromArgb(230, 231, 232); // min colour (light gray)
+            c1 = System.Drawing.Color.FromArgb(62, 168, 222); // max colour (blue)
+            cload = System.Drawing.Color.FromArgb(255, 123, 172); // load colour (pink)
             load = true;
-            creact = System.Drawing.Color.FromArgb(71, 181, 116);
+            creact = System.Drawing.Color.FromArgb(71, 181, 116); // reaction colour green)
             react = false;
 
             //Assign
@@ -190,7 +190,7 @@ namespace FDMremote.GH_Analysis
             for (int i = 0; i < F.Count; i++)
             {
                 var index = F[i];
-                reactions.Add(new Line(points[index], anchorforces[i] * 2 * scale / normalizer));
+                reactions.Add(new Line(points[index], anchorforces[i] * 3 * scale / normalizer));
             }
 
             return reactions.ToArray();

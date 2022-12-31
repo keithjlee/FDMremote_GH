@@ -57,7 +57,7 @@ namespace FDMremote.GH_Optimization
         {
             
             pManager.AddGenericParameter("Network", "Network", "Network pass through", GH_ParamAccess.item) ;
-            //pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item);
+            pManager.AddTextParameter("Message", "Msg", "Sent message", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace FDMremote.GH_Optimization
             //if (!DA.GetData(2, ref objparams)) return;
             if (!DA.GetData(2, ref objparams))
             {
-                objparams = new OBJParameters(0.1, 100, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 400);
+                objparams = new OBJParameters(-1e6, 1e6, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, false, 20, 1);
                 Params.Input[2].AddVolatileData(new Grasshopper.Kernel.Data.GH_Path(0), 0, objparams);
             }
             DA.GetDataList(3, loads);
@@ -101,7 +101,7 @@ namespace FDMremote.GH_Optimization
 
             
             DA.SetData(0, network);
-            //DA.SetData(1, JsonConvert.SerializeObject(optimprob));
+            DA.SetData(1, JsonConvert.SerializeObject(optimprob));
         }
 
         /// <summary>

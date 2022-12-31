@@ -7,6 +7,7 @@ using FDMremote.Utilities;
 using FDMremote.Optimization;
 using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Types;
+using Newtonsoft.Json;
 
 namespace FDMremote.GH_Optimization
 {
@@ -31,7 +32,7 @@ namespace FDMremote.GH_Optimization
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Objective Functions", "Obj", "Objective function(s) to minimize; defaults to TargetShape", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Lower Bound", "LB", "Lower bound of force densities", GH_ParamAccess.item, 0.1);
+            pManager.AddNumberParameter("Lower Bound", "LB", "Lower bound of force densities", GH_ParamAccess.item, -10);
             pManager.AddNumberParameter("Upper Bound", "UB", "Upper bound of force densities", GH_ParamAccess.item, 100);
             pManager.AddNumberParameter("Absolute Tolerance", "AbsTol", "Absolute stopping tolerance", GH_ParamAccess.item, 1e-3);
             pManager.AddNumberParameter("Relative Tolerance", "RelTol", "Relative stopping tolerance", GH_ParamAccess.item, 1e-3);
@@ -43,7 +44,7 @@ namespace FDMremote.GH_Optimization
             //Param_GenericObject paramobj = (Param_GenericObject)pManager[0];
             //OBJ defaultobj = new OBJNull();
             //paramobj.PersistentData.Append(new GH_ObjectWrapper(defaultobj));
-            //pManager[0].Optional = true;
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -73,8 +74,12 @@ namespace FDMremote.GH_Optimization
             //assign
             //if (!DA.GetDataList(0, objs)) return;
             List<OBJ> objs = new List<OBJ>();
-            if (!DA.GetDataList(0, objs)) 
-            //DA.GetDataList(0, objs);
+            //if (!DA.GetDataList(0, objs))
+            //{
+            //    objs = new List<OBJ> { new OBJNull() };
+            //    Params.Input[0].AddVolatileDataList(new Grasshopper.Kernel.Data.GH_Path(0), objs);
+            //}
+            DA.GetDataList(0, objs);
             DA.GetData(1, ref lb);
             DA.GetData(2, ref ub);
             DA.GetData(3, ref abstol);

@@ -98,10 +98,10 @@ namespace FDMremote.Optimization
             //objectives and weights
             OBJids = new List<int>();
             OBJweights = new List<double>();
-            MinLength = 1.0;
-            MaxLength = 1000.0;
-            MinForce = 1.0;
-            MaxForce = 10000.0;
+            MinLength = 0.1;
+            MaxLength = 1000000.0;
+            MinForce = -1000000.0;
+            MaxForce = 1000000.0;
 
             // for each active objective
             for (int i = 0; i < objparams.Objectives.Count; i++)
