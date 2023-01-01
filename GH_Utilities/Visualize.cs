@@ -16,6 +16,7 @@ namespace FDMremote.GH_Analysis
 {
     public class Visualize : GH_Component
     {
+        //persistent data
         Line[] edges;
         List<double> property;
         Line[] externalforces;
@@ -29,6 +30,9 @@ namespace FDMremote.GH_Analysis
         System.Drawing.Color creact;
         bool load;
         bool react;
+        int prop;
+
+        //default colours
         readonly System.Drawing.Color lightgray = System.Drawing.Color.FromArgb(230, 231, 232);
         readonly System.Drawing.Color blue = System.Drawing.Color.FromArgb(62, 168, 222);
         readonly System.Drawing.Color pink = System.Drawing.Color.FromArgb(255, 123, 172);
@@ -36,7 +40,6 @@ namespace FDMremote.GH_Analysis
         readonly System.Drawing.Color red = System.Drawing.Color.FromArgb(235, 52, 73);
 
 
-        int prop;
         /// <summary>
         /// Initializes a new instance of the Visualize class.
         /// </summary>
