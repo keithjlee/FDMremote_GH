@@ -7,10 +7,11 @@ using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
 using Rhino.Collections;
 using Rhino.DocObjects;
+using FDMremote.Utilities;
 
 namespace FDMremote.GH_Design.Experimental
 {
-    public class CtrlSurf : GH_Component
+    public class CtrlSurfEdge : GH_Component
     {
         private List<Curve> curves;
         private NurbsSurface surf;
@@ -31,6 +32,7 @@ namespace FDMremote.GH_Design.Experimental
         private double vmin;
 
         private bool show;
+        private double scale;
         private Point3d pbl;
         private Point3d pbr;
         private Point3d ptl;
@@ -38,9 +40,9 @@ namespace FDMremote.GH_Design.Experimental
         /// <summary>
         /// Initializes a new instance of the CtrlSurf class.
         /// </summary>
-        public CtrlSurf()
-          : base("ControlSurface", "CtrlSurf_Curve",
-              "NURBs control surface for dimensionality reduction",
+        public CtrlSurfEdge()
+          : base("Force Density control surface", "CtrlSurfQ",
+              "Provides reduced-dimension values for network edges based on NURBs control surface",
               "FDMremote", "Experimental")
         {
         }
@@ -52,15 +54,16 @@ namespace FDMremote.GH_Design.Experimental
         {
             //pManager.AddGeometryParameter("Geometry", "Geo", "Geometry to reference", GH_ParamAccess.list);
             pManager.AddBooleanParameter("Generate", "Generate", "Generate the control surface", GH_ParamAccess.item, false);
-            pManager.AddCurveParameter("Curves", "Curves", "Reference curves", GH_ParamAccess.list);
+            pManager.AddCurveParameter("Curve", "Curve", "Network Edges", GH_ParamAccess.list);
             pManager.AddIntegerParameter("Ucount", "nU", "Number of points in u direction", GH_ParamAccess.item, 3);
             pManager.AddIntegerParameter("Vcount", "nV", "Number of points in v direction", GH_ParamAccess.item, 4);
             pManager.AddVectorParameter("SurfaceOffset", "Offset", "Offset of displayed control surface (independent of actual value calculation)", GH_ParamAccess.item, new Vector3d(0, 0, -100));
-            pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 1e3) ;
+            pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 100) ;
             pManager.AddNumberParameter("MinimumValue", "Min", "Minimum value represented by surface",
                 GH_ParamAccess.item, 0.1) ;
             pManager.AddNumberParameter("CtrlValue", "Value", "Surface control point values", GH_ParamAccess.list, 0);
             pManager.AddBooleanParameter("ShowSurface", "Show", "Show the control surface", GH_ParamAccess.item, true) ;
+            pManager.AddNumberParameter("TextScale", "Scale", "Scale of text tags", GH_ParamAccess.item, 20);
         }
 
         /// <summary>
@@ -89,6 +92,7 @@ namespace FDMremote.GH_Design.Experimental
             vmin = -1e3;
             bool reset = false;
             show = true;
+            scale = 20;
 
             //assign
             DA.GetData(0, ref reset);
@@ -96,6 +100,7 @@ namespace FDMremote.GH_Design.Experimental
             DA.GetData(2, ref u);
             DA.GetData(3, ref v);
             DA.GetData(8, ref show);
+            DA.GetData(9, ref scale);
 
             //upper limit for density of control points
             if (u > 5 && v > 5)
@@ -111,7 +116,7 @@ namespace FDMremote.GH_Design.Experimental
             ghd = this.OnPingDocument();
 
             //get global bounding box
-            GetBB(curves);
+            GetBB();
 
             //create sliders
             if (reset) 
@@ -141,11 +146,30 @@ namespace FDMremote.GH_Design.Experimental
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
             base.DrawViewportWires(args);
+            Plane plane;
+            args.Viewport.GetFrustumFarPlane(out plane);
 
             if (show)
             {
                 args.Display.DrawPoints(offsetPoints, Rhino.Display.PointStyle.Circle, 3, System.Drawing.Color.MediumAquamarine);
                 args.Display.DrawSurface(offsetSurf, System.Drawing.Color.MediumAquamarine, 6);
+
+                for (int i = 0; i < names.Count; i++)
+                {
+                    string text = names[i];
+                    Point3d point = offsetPoints[i];
+                    plane.Origin = point;
+
+                    Rhino.Display.Text3d drawText = new Rhino.Display.Text3d(text, plane, scale);
+                    args.Display.Draw3dText(drawText, System.Drawing.Color.MediumAquamarine);
+                    drawText.Dispose();
+                }
+
+                Point2d tag = new Point2d(5, args.Viewport.Bounds.Height-50);
+                args.Display.Draw2dText("FORCE DENSITY CONTROL SURFACE",
+                    System.Drawing.Color.MediumAquamarine,
+                    tag,
+                    false);
             }
         }
 
@@ -230,7 +254,7 @@ namespace FDMremote.GH_Design.Experimental
         /// get bounding box
         /// </summary>
         /// <param name="curves"></param>
-        private void GetBB(List<Curve> curves)
+        private void GetBB()
         {
             bb = new BoundingBox();
 
@@ -246,7 +270,7 @@ namespace FDMremote.GH_Design.Experimental
             ptl = bb.Corner(true, false, true);
             var pzl = bb.Corner(true, true, false);
 
-            height = pbl.DistanceTo(pzl);
+            height = 1.25 * pbl.DistanceTo(pzl);
             baseline = pbl.Z - height;
         }
 

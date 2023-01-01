@@ -73,7 +73,7 @@ namespace FDMremote.GH_Utilities
             relevantObjs = new List<IGH_DocumentObject>();
             foreach (IGH_DocumentObject obj in ghdobjs)
             {
-                if (obj.NickName == "Pipeline") relevantObjs.Add(obj);
+                if (obj.NickName == "Pipeline" || obj.NickName == "CtrlSurfQ" || obj.NickName == "CtrlSurfP") relevantObjs.Add(obj);
             }
 
             if (update)

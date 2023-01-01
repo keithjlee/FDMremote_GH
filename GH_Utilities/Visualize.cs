@@ -246,7 +246,15 @@ namespace FDMremote.GH_Analysis
                     Point3d p = nodes[index];
                     Vector3d l = loads[i];
 
-                    loadvectors.Add(new Line(p, l * scale / normalizer));
+                    if (l.Length < 0.1)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        loadvectors.Add(new Line(p, l * scale / normalizer));
+                    }
+                    
                 }
             }
 

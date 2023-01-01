@@ -5,11 +5,13 @@ using Grasshopper.Kernel;
 using Rhino.Collections;
 using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
+using FDMremote.Utilities;
 
 namespace FDMremote.GH_Design.Experimental
 {
     public class CtrlSurfPoint : GH_Component
     {
+        private Network network;
         private List<Point3d> inputPoints;
         private NurbsSurface surf;
         private NurbsSurface offsetSurf;
@@ -29,6 +31,7 @@ namespace FDMremote.GH_Design.Experimental
         private double vmin;
 
         private bool show;
+        private double scale;
         private Point3d pbl;
         private Point3d pbr;
         private Point3d ptl;
@@ -37,8 +40,8 @@ namespace FDMremote.GH_Design.Experimental
         /// Initializes a new instance of the CtrlSurf class.
         /// </summary>
         public CtrlSurfPoint()
-          : base("Load Control Surface", "CtrlSurfP",
-              "NURBs control surface for dimensionality reduction",
+          : base("Load control surface", "CtrlSurfP",
+              "Provides reduced-dimension values for free nodes based on NURBs control surface",
               "FDMremote", "Experimental")
         {
         }
@@ -50,15 +53,16 @@ namespace FDMremote.GH_Design.Experimental
         {
             //pManager.AddGeometryParameter("Geometry", "Geo", "Geometry to reference", GH_ParamAccess.list);
             pManager.AddBooleanParameter("Generate", "Generate", "Generate the control surface", GH_ParamAccess.item, false);
-            pManager.AddPointParameter("Points", "Points", "Reference Points", GH_ParamAccess.list);
+            pManager.AddGenericParameter("Network", "Network", "Network to analyze", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Ucount", "nU", "Number of points in u direction", GH_ParamAccess.item, 3);
             pManager.AddIntegerParameter("Vcount", "nV", "Number of points in v direction", GH_ParamAccess.item, 4);
             pManager.AddVectorParameter("SurfaceOffset", "Offset", "Offset of displayed control surface (independent of actual value calculation)", GH_ParamAccess.item, new Vector3d(0, 0, -100));
-            pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 1e3);
+            pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 100);
             pManager.AddNumberParameter("MinimumValue", "Min", "Minimum value represented by surface",
-                GH_ParamAccess.item, 0.0);
+                GH_ParamAccess.item, -100);
             pManager.AddNumberParameter("CtrlValue", "Value", "Surface control point values", GH_ParamAccess.list, 0);
             pManager.AddBooleanParameter("ShowSurface", "Show", "Show the control surface", GH_ParamAccess.item, true);
+            pManager.AddNumberParameter("TextScale", "TextScale", "Scale of text tags", GH_ParamAccess.item, 20);
         }
 
         /// <summary>
@@ -80,6 +84,7 @@ namespace FDMremote.GH_Design.Experimental
         {
             //Initialize
             inputPoints = new List<Point3d>();
+            network = new Network();
             u = 3;
             v = 3;
             Vector3d offset = new Vector3d(0, 0, -100);
@@ -87,13 +92,15 @@ namespace FDMremote.GH_Design.Experimental
             vmin = -1e3;
             bool reset = false;
             show = true;
+            scale = 20;
 
             //assign
             DA.GetData(0, ref reset);
-            if (!DA.GetDataList(1, inputPoints)) return;
+            if (!DA.GetData(1, ref network)) return;
             DA.GetData(2, ref u);
             DA.GetData(3, ref v);
             DA.GetData(8, ref show);
+            DA.GetData(9, ref scale);
 
             //upper limit for density of control points
             if (u > 5 && v > 5)
@@ -108,8 +115,11 @@ namespace FDMremote.GH_Design.Experimental
             //active doc
             ghd = this.OnPingDocument();
 
+            //get points
+            GetFreePoints();
+
             //get global bounding box
-            GetBB(inputPoints);
+            GetBB();
 
             //create sliders
             if (reset)
@@ -136,14 +146,43 @@ namespace FDMremote.GH_Design.Experimental
             DA.SetDataList(1, values);
         }
 
+        public void GetFreePoints()
+        {
+            inputPoints = new List<Point3d>();
+
+            foreach (int index in network.N)
+            {
+                inputPoints.Add(network.Points[index]);
+            }
+        }
+
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
             base.DrawViewportWires(args);
+            Plane plane;
+            args.Viewport.GetFrustumFarPlane(out plane);
 
             if (show)
             {
-                args.Display.DrawPoints(offsetPoints, Rhino.Display.PointStyle.Circle, 3, System.Drawing.Color.MediumAquamarine);
-                args.Display.DrawSurface(offsetSurf, System.Drawing.Color.MediumAquamarine, 6);
+                args.Display.DrawPoints(offsetPoints, Rhino.Display.PointStyle.Circle, 3, System.Drawing.Color.MediumOrchid);
+                args.Display.DrawSurface(offsetSurf, System.Drawing.Color.MediumOrchid, 6);
+
+                for (int i = 0; i < names.Count; i++)
+                {
+                    string text = names[i];
+                    Point3d point = offsetPoints[i];
+                    plane.Origin = point;
+
+                    Rhino.Display.Text3d drawText = new Rhino.Display.Text3d(text, plane, scale);
+                    args.Display.Draw3dText(drawText, System.Drawing.Color.MediumOrchid);
+                    drawText.Dispose();
+                }
+
+                Point2d tag = new Point2d(5, args.Viewport.Bounds.Height - 30);
+                args.Display.Draw2dText("FORCE MAGNITUDE CONTROL SURFACE",
+                    System.Drawing.Color.MediumOrchid,
+                    tag,
+                    false);
             }
         }
 
@@ -228,13 +267,12 @@ namespace FDMremote.GH_Design.Experimental
         /// get bounding box
         /// </summary>
         /// <param name="points"></param>
-        private void GetBB(List<Point3d> points)
+        private void GetBB()
         {
-            bb = new BoundingBox();
+            var pointlist = new Point3dList(inputPoints);
+            bb = pointlist.BoundingBox;
 
-            var pointlist = new Point3dList(points);
-
-            bb.Union(pointlist.BoundingBox);
+            
 
             //get total height of geometry
 
@@ -243,7 +281,7 @@ namespace FDMremote.GH_Design.Experimental
             ptl = bb.Corner(true, false, true);
             var pzl = bb.Corner(true, true, false);
 
-            height = pbl.DistanceTo(pzl);
+            height = 1.25 * pbl.DistanceTo(pzl);
             baseline = pbl.Z - height;
         }
 
