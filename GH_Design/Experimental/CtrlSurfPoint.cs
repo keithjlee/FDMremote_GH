@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Policy;
+
 using Grasshopper.Kernel;
-using MathNet.Numerics.Integration;
+using Rhino.Collections;
 using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
-using Rhino.Collections;
-using Rhino.DocObjects;
 
 namespace FDMremote.GH_Design.Experimental
 {
-    public class CtrlSurf : GH_Component
+    public class CtrlSurfPoint : GH_Component
     {
-        private List<Curve> curves;
+        private List<Point3d> inputPoints;
         private NurbsSurface surf;
         private NurbsSurface offsetSurf;
         private List<Point3d> points;
@@ -38,8 +36,8 @@ namespace FDMremote.GH_Design.Experimental
         /// <summary>
         /// Initializes a new instance of the CtrlSurf class.
         /// </summary>
-        public CtrlSurf()
-          : base("ControlSurface", "CtrlSurf_Curve",
+        public CtrlSurfPoint()
+          : base("Load Control Surface", "CtrlSurfP",
               "NURBs control surface for dimensionality reduction",
               "FDMremote", "Experimental")
         {
@@ -52,15 +50,15 @@ namespace FDMremote.GH_Design.Experimental
         {
             //pManager.AddGeometryParameter("Geometry", "Geo", "Geometry to reference", GH_ParamAccess.list);
             pManager.AddBooleanParameter("Generate", "Generate", "Generate the control surface", GH_ParamAccess.item, false);
-            pManager.AddCurveParameter("Curves", "Curves", "Reference curves", GH_ParamAccess.list);
+            pManager.AddPointParameter("Points", "Points", "Reference Points", GH_ParamAccess.list);
             pManager.AddIntegerParameter("Ucount", "nU", "Number of points in u direction", GH_ParamAccess.item, 3);
             pManager.AddIntegerParameter("Vcount", "nV", "Number of points in v direction", GH_ParamAccess.item, 4);
             pManager.AddVectorParameter("SurfaceOffset", "Offset", "Offset of displayed control surface (independent of actual value calculation)", GH_ParamAccess.item, new Vector3d(0, 0, -100));
-            pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 1e3) ;
+            pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 1e3);
             pManager.AddNumberParameter("MinimumValue", "Min", "Minimum value represented by surface",
-                GH_ParamAccess.item, 0.1) ;
+                GH_ParamAccess.item, 0.0);
             pManager.AddNumberParameter("CtrlValue", "Value", "Surface control point values", GH_ParamAccess.list, 0);
-            pManager.AddBooleanParameter("ShowSurface", "Show", "Show the control surface", GH_ParamAccess.item, true) ;
+            pManager.AddBooleanParameter("ShowSurface", "Show", "Show the control surface", GH_ParamAccess.item, true);
         }
 
         /// <summary>
@@ -81,7 +79,7 @@ namespace FDMremote.GH_Design.Experimental
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             //Initialize
-            curves = new List<Curve>();
+            inputPoints = new List<Point3d>();
             u = 3;
             v = 3;
             Vector3d offset = new Vector3d(0, 0, -100);
@@ -92,7 +90,7 @@ namespace FDMremote.GH_Design.Experimental
 
             //assign
             DA.GetData(0, ref reset);
-            if (!DA.GetDataList(1, curves)) return;
+            if (!DA.GetDataList(1, inputPoints)) return;
             DA.GetData(2, ref u);
             DA.GetData(3, ref v);
             DA.GetData(8, ref show);
@@ -111,13 +109,13 @@ namespace FDMremote.GH_Design.Experimental
             ghd = this.OnPingDocument();
 
             //get global bounding box
-            GetBB(curves);
+            GetBB(inputPoints);
 
             //create sliders
-            if (reset) 
+            if (reset)
             {
                 ghd.ScheduleSolution(5, SolutionCallback);
-            } 
+            }
 
             zvalues = new List<double>();
             DA.GetDataList(7, zvalues);
@@ -175,7 +173,7 @@ namespace FDMremote.GH_Design.Experimental
             foreach (Point3d point in points)
             {
                 var offsetpoint = new Point3d(point);
-                
+
                 offsetPoints.Add(offsetpoint + offset);
             }
         }
@@ -229,15 +227,14 @@ namespace FDMremote.GH_Design.Experimental
         /// <summary>
         /// get bounding box
         /// </summary>
-        /// <param name="curves"></param>
-        private void GetBB(List<Curve> curves)
+        /// <param name="points"></param>
+        private void GetBB(List<Point3d> points)
         {
             bb = new BoundingBox();
 
-            foreach (Curve curve in curves)
-            {
-                bb.Union(curve.GetBoundingBox(true));
-            }
+            var pointlist = new Point3dList(points);
+
+            bb.Union(pointlist.BoundingBox);
 
             //get total height of geometry
 
@@ -288,17 +285,17 @@ namespace FDMremote.GH_Design.Experimental
                 {
                     double px = pbl.X + xspacing * i;
                     double py = pbl.Y + yspacing * j;
-                    double pz = 0;
+                    double pz;
 
                     if (zvalues.Count == 1)
                     {
-                        pz = height * zvalues[0]  + baseline;
+                        pz = height * zvalues[0] + baseline;
                     }
                     else
                     {
                         pz = height * zvalues[k] + baseline;
                     }
-                    
+
 
                     points.Add(new Point3d(px, py, pz));
                     k++;
@@ -311,11 +308,10 @@ namespace FDMremote.GH_Design.Experimental
         {
             values = new List<double>();
             double range = vmax - vmin;
-            foreach (Curve curve in curves)
+            foreach (Point3d point in inputPoints)
             {
-                var midpoint = curve.PointAtNormalizedLength(0.5);
                 Vector3d ray = -2 * height * Vector3d.ZAxis;
-                Line line = new Line(midpoint, ray);
+                Line line = new Line(point, ray);
 
                 var inter = Intersection.CurveSurface(line.ToNurbsCurve(), surf, 1e-2, 1e-2)[0];
 
@@ -345,7 +341,7 @@ namespace FDMremote.GH_Design.Experimental
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("749BFEA8-8305-4D3D-B420-416EE4355F80"); }
+            get { return new Guid("5C6A252F-A943-46A1-B609-7E80B9DDAD73"); }
         }
     }
 }
