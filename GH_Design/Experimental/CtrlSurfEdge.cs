@@ -18,12 +18,15 @@ namespace FDMremote.GH_Design.Experimental
         private NurbsSurface offsetSurf;
         private List<Point3d> points;
         private List<Point3d> offsetPoints;
+
         private List<string> names;
         private List<double> zvalues;
         private List<double> values;
+
         private BoundingBox bb;
         private double height;
         private double baseline;
+
         private GH_Document ghd;
         private int ctrlidx = 7;
         private int u;
@@ -172,6 +175,7 @@ namespace FDMremote.GH_Design.Experimental
                     false);
             }
         }
+
 
         public override BoundingBox ClippingBox
         {

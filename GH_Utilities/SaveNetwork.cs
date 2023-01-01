@@ -42,6 +42,8 @@ namespace FDMremote.GH_Utilities
             pManager.AddTextParameter("Folder Directory", "Dir", @"Written like: C:\\Users\\folder\\", GH_ParamAccess.item, "C:\\Temp\\");
             pManager.AddTextParameter("File Name", "Name", "Name of file, ending in .json", GH_ParamAccess.item, "network.json");
             pManager.AddBooleanParameter("Save Network", "Freeze", "Click to freeze current state", GH_ParamAccess.item, false);
+
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -64,17 +66,18 @@ namespace FDMremote.GH_Utilities
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             bool freeze = false;
-            file = "network.json";
-            folder = "";
-            loads = new List<Vector3d>();
-
-            DA.GetData(0, ref network);
-            DA.GetDataList(1, loads);
-            DA.GetData(3, ref file);
             DA.GetData(4, ref freeze);
 
             if (freeze)
             {
+                file = "network.json";
+                folder = "";
+                loads = new List<Vector3d>();
+
+                DA.GetData(0, ref network);
+                DA.GetDataList(1, loads);
+                DA.GetData(3, ref file);
+
                 curves = network.Curves;
                 anchors = network.Anchors;
                 q = network.ForceDensities;
@@ -93,7 +96,7 @@ namespace FDMremote.GH_Utilities
                 }
                 catch { }
 
-
+                
             }
 
             DA.SetDataList(0, curves);
