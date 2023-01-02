@@ -243,6 +243,26 @@ namespace FDMremote.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap SurfP {
+            get {
+                object obj = ResourceManager.GetObject("SurfP", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SurfQ {
+            get {
+                object obj = ResourceManager.GetObject("SurfQ", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap tagger {
             get {
                 object obj = ResourceManager.GetObject("tagger", resourceCulture);

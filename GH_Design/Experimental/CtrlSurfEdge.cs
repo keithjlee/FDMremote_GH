@@ -8,6 +8,7 @@ using Rhino.Geometry.Intersect;
 using Rhino.Collections;
 using Rhino.DocObjects;
 using FDMremote.Utilities;
+using FDMremote.Properties;
 
 namespace FDMremote.GH_Design.Experimental
 {
@@ -35,7 +36,7 @@ namespace FDMremote.GH_Design.Experimental
         private double vmin;
 
         private bool show;
-        private double scale;
+        private int scale;
         private Point3d pbl;
         private Point3d pbr;
         private Point3d ptl;
@@ -44,7 +45,7 @@ namespace FDMremote.GH_Design.Experimental
         /// Initializes a new instance of the CtrlSurf class.
         /// </summary>
         public CtrlSurfEdge()
-          : base("Force Density control surface", "CtrlSurfQ",
+          : base("Edge-value Control Surface", "CtrlSurfQ",
               "Provides reduced-dimension values for network edges based on NURBs control surface",
               "FDMremote", "Experimental")
         {
@@ -59,14 +60,14 @@ namespace FDMremote.GH_Design.Experimental
             pManager.AddBooleanParameter("Generate", "Generate", "Generate the control surface", GH_ParamAccess.item, false);
             pManager.AddCurveParameter("Curve", "Curve", "Network Edges", GH_ParamAccess.list);
             pManager.AddIntegerParameter("Ucount", "nU", "Number of points in u direction", GH_ParamAccess.item, 3);
-            pManager.AddIntegerParameter("Vcount", "nV", "Number of points in v direction", GH_ParamAccess.item, 4);
-            pManager.AddVectorParameter("SurfaceOffset", "Offset", "Offset of displayed control surface (independent of actual value calculation)", GH_ParamAccess.item, new Vector3d(0, 0, -100));
+            pManager.AddIntegerParameter("Vcount", "nV", "Number of points in v direction", GH_ParamAccess.item, 3);
+            pManager.AddVectorParameter("SurfaceOffset", "Offset", "Offset of displayed control surface (independent of actual value calculation)", GH_ParamAccess.item, new Vector3d(0, 0, -300));
             pManager.AddNumberParameter("MaximumValue", "Max", "Maximum value represented by surface", GH_ParamAccess.item, 100) ;
             pManager.AddNumberParameter("MinimumValue", "Min", "Minimum value represented by surface",
                 GH_ParamAccess.item, 0.1) ;
             pManager.AddNumberParameter("CtrlValue", "Value", "Surface control point values", GH_ParamAccess.list, 0);
             pManager.AddBooleanParameter("ShowSurface", "Show", "Show the control surface", GH_ParamAccess.item, true) ;
-            pManager.AddNumberParameter("TextScale", "Scale", "Scale of text tags", GH_ParamAccess.item, 20);
+            pManager.AddIntegerParameter("TextScale", "Scale", "Scale of text tags", GH_ParamAccess.item, 20);
         }
 
         /// <summary>
@@ -168,11 +169,13 @@ namespace FDMremote.GH_Design.Experimental
                     drawText.Dispose();
                 }
 
-                Point2d tag = new Point2d(5, args.Viewport.Bounds.Height-50);
+                //Point2d tag = new Point2d(5, args.Viewport.Bounds.Height-50);
+                Point2d tag = new Point2d(5, 50);
                 args.Display.Draw2dText("FORCE DENSITY CONTROL SURFACE",
                     System.Drawing.Color.MediumAquamarine,
                     tag,
-                    false);
+                    false,
+                    scale);
             }
         }
 
@@ -358,15 +361,7 @@ namespace FDMremote.GH_Design.Experimental
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon
-        {
-            get
-            {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
-            }
-        }
+        protected override System.Drawing.Bitmap Icon => Resources.SurfQ;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
