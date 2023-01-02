@@ -10,6 +10,7 @@
   </PropertyGroup>
 	
   <ItemGroup>
+    <Compile Remove="GH_Design\Experimental\AnalyzeEigen.cs" />
     <Compile Remove="GH_Design\Experimental\EdgeCollector.cs" />
     <Compile Remove="GH_Design\Experimental\Topologize.cs" />
     <Compile Remove="GH_Design\Experimental\Update_exp.cs" />
@@ -128,9 +129,5 @@
     <StartArguments></StartArguments>
     <StartAction>Program</StartAction>
   </PropertyGroup>
-  
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if exist &quot;$(TargetPath).locked&quot; del &quot;$(TargetPath).locked&quot;&#xD;&#xA;if not exist &quot;$(TargetPath).locked&quot; move &quot;$(TargetPath)&quot; &quot;$(TargetPath).locked&quot;" />
-  </Target>
 
 </Project>
