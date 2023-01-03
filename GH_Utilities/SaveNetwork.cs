@@ -146,12 +146,7 @@ namespace FDMremote.GH_Utilities
         /// </summary>
         private void GetOffset()
         {
-            var bb = new BoundingBox();
-
-            foreach (Curve curve in network.Curves)
-            {
-                bb.Union(curve.GetBoundingBox(true));
-            }
+            var bb = new BoundingBox(network.Points);
 
             //get total height of geometry
 
@@ -160,7 +155,7 @@ namespace FDMremote.GH_Utilities
             var ptl = bb.Corner(true, false, true);
             var pzl = bb.Corner(true, true, false);
 
-            baseoffset = pbr - pbl;
+            baseoffset = (pbr - pbl) * 1.2;
         }
 
         /// <summary>

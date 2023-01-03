@@ -69,7 +69,11 @@ namespace FDMremote.GH_Materialization
         readonly System.Drawing.Color darkblue = System.Drawing.Color.FromArgb(3, 0, 198);
         readonly System.Drawing.Color lightgray = System.Drawing.Color.FromArgb(128, 128, 128);
         readonly System.Drawing.Color magenta = System.Drawing.Color.FromArgb(237, 30, 121);
-        
+
+        readonly System.Drawing.Color b1 = System.Drawing.Color.FromArgb(0, 79, 235);
+        readonly System.Drawing.Color b2 = System.Drawing.Color.FromArgb(140, 237, 235);
+        readonly System.Drawing.Color o1 = System.Drawing.Color.FromArgb(255, 101, 59);
+        readonly System.Drawing.Color o2 = System.Drawing.Color.FromArgb(255, 255, 59);
 
         Vector3d textoffset;
 
@@ -79,7 +83,7 @@ namespace FDMremote.GH_Materialization
         public MakeHelper()
           : base("MakeHelper", "Make",
               "Utility for materializing a FDM network",
-              "FDMremote", "Materialization")
+              "FDMremote", "Experimental")
         {
         }
 
@@ -97,10 +101,10 @@ namespace FDMremote.GH_Materialization
             pManager.AddNumberParameter("Area", "A", "Cross-sectional area of edge VERIFY YOUR UNITS)", GH_ParamAccess.item, 10);
             pManager.AddBooleanParameter("ShowNodes", "Nodes", "Show node spheres", GH_ParamAccess.item, false);
             pManager.AddIntegerParameter("NodeRadius", "Radius", "Radius of node spheres", GH_ParamAccess.item, 5);
-            pManager.AddColourParameter("FixedColour1", "F0", "Gradient extrema 1 for fixed nodes", GH_ParamAccess.item, lightgray);
-            pManager.AddColourParameter("FixedColour2", "F1", "Gradient extrema 2 for fixed nodes", GH_ParamAccess.item, darkblue);
-            pManager.AddColourParameter("FreeColour1", "N0", "Gradient extrema 1 for free nodes", GH_ParamAccess.item, System.Drawing.Color.Black);
-            pManager.AddColourParameter("FreeColour2", "N1", "Gradient extrema 2 for free nodes", GH_ParamAccess.item, magenta);
+            pManager.AddColourParameter("FixedColour1", "F0", "Gradient extrema 1 for fixed nodes", GH_ParamAccess.item, b1);
+            pManager.AddColourParameter("FixedColour2", "F1", "Gradient extrema 2 for fixed nodes", GH_ParamAccess.item, b2);
+            pManager.AddColourParameter("FreeColour1", "N0", "Gradient extrema 1 for free nodes", GH_ParamAccess.item, o1);
+            pManager.AddColourParameter("FreeColour2", "N1", "Gradient extrema 2 for free nodes", GH_ParamAccess.item, o2);
             pManager.AddIntegerParameter("EdgeThickness", "Thickness", "Thickness of edge lines", GH_ParamAccess.item, 5);
             //pManager.AddVectorParameter("StraightOffset", "StraightOffset", "Offset of drawn straight edges", GH_ParamAccess.item) ;
             pManager.AddNumberParameter("StraightSpacing", "Spacing", "Spacing of straight edges", GH_ParamAccess.item, 10.0);
@@ -108,7 +112,7 @@ namespace FDMremote.GH_Materialization
             //pManager.AddVectorParameter("ProjectionOffset", "ProjOffset", "Offset of projection drawing", GH_ParamAccess.item);
             pManager.AddBooleanParameter("ShowProjection", "Projection", "Show projection drawing", GH_ParamAccess.item, true);
             pManager.AddBooleanParameter("ShowPairs", "Pairs", "Show curve-curve pairs", GH_ParamAccess.item, false);
-            pManager.AddColourParameter("PairColour", "Cpair", "Colour of pair lines", GH_ParamAccess.item, System.Drawing.Color.LightGray);
+            pManager.AddColourParameter("PairColour", "Cpair", "Colour of pair lines", GH_ParamAccess.item, System.Drawing.Color.Gray);
             pManager.AddIntegerParameter("TextSize", "TextSize", "Size of text tags", GH_ParamAccess.item, 3);
             pManager.AddBooleanParameter("ShowText", "Text", "Show text tags", GH_ParamAccess.item, true);
             pManager.AddColourParameter("TextColour", "Ctext", "Colour of tags", GH_ParamAccess.item, System.Drawing.Color.Black);
@@ -198,6 +202,10 @@ namespace FDMremote.GH_Materialization
 
             if (show)
             {
+                //args.Display.DrawPoint(pbl, Rhino.Display.PointStyle.RoundSimple, radius, System.Drawing.Color.GreenYellow);
+                //args.Display.DrawPoint(pbl + straightStart, Rhino.Display.PointStyle.RoundSimple, radius, System.Drawing.Color.GreenYellow);
+
+                //args.Display.DrawBrepWires(bb.ToBrep(), magenta);
 
                 //draw edges
                 for (int i = 0; i < edgeLines.Length; i++)
@@ -214,7 +222,8 @@ namespace FDMremote.GH_Materialization
                 {
                     for (int i = 0; i < edgeLines.Length; i++)
                     {
-                        string text = unstressedValues[i];
+                        //string text = unstressedValues[i];
+                        string text = "E" + i.ToString();
                         Plane pl;
                         args.Viewport.GetFrustumFarPlane(out pl);
 
@@ -313,7 +322,8 @@ to Node {endnode}";
                     {
                         for (int i = 0; i < flatLines.Length; i++)
                         {
-                            string text = unstressedValues[i];
+                            //string text = unstressedValues[i];
+                            string text = "E" + i.ToString();
                             Plane pl = Plane.WorldXY;
                             pl.Origin = flatLines[i].PointAt(0.5) + textoffset;
 
@@ -405,6 +415,7 @@ to Node {endnode}";
 
                     if (showTags)
                     {
+
                         for (int i = 0; i < straightLines.Length; i++)
                         {
                             string text = unstressedValues[i];
@@ -430,6 +441,15 @@ to Node {endnode}";
                             Plane pl = Plane.WorldXY;
 
                             pl.Origin = straightPoints[i] + textoffset;
+
+                            if (i % 2 == 0)
+                            {
+                                pl.Origin += new Vector3d(0, -textSize, 0);
+                            }
+                            else
+                            {
+                                pl.Origin += new Vector3d(0, textSize, 0);
+                            }
 
                             args.Display.Draw3dText(text,
                                 textColour,
@@ -491,12 +511,13 @@ to Node {endnode}";
         /// </summary>
         private void GetBB()
         {
-            bb = new BoundingBox();
+            bb = new BoundingBox(network.Points);
 
-            foreach (Curve curve in network.Curves)
-            {
-                bb.Union(curve.GetBoundingBox(true));
-            }
+            //foreach (Curve curve in network.Curves)
+            //{
+            //    bb.Union(curve.GetBoundingBox(true));
+            //}
+
 
             //get total height of geometry
 
