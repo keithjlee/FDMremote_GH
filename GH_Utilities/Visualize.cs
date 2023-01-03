@@ -38,7 +38,7 @@ namespace FDMremote.GH_Analysis
         readonly System.Drawing.Color blue = System.Drawing.Color.FromArgb(62, 168, 222);
         readonly System.Drawing.Color pink = System.Drawing.Color.FromArgb(255, 123, 172);
         readonly System.Drawing.Color green = System.Drawing.Color.FromArgb(71, 181, 116);
-        readonly System.Drawing.Color red = System.Drawing.Color.FromArgb(235, 52, 73);
+        readonly System.Drawing.Color red = System.Drawing.Color.FromArgb(150, 235, 52, 73);
 
 
         /// <summary>
@@ -59,17 +59,17 @@ namespace FDMremote.GH_Analysis
             pManager.AddBooleanParameter("Show", "Show", "Active status of component", GH_ParamAccess.item, true);
             pManager.AddGenericParameter("Network", "Network", "Network to visualize", GH_ParamAccess.item);
             pManager.AddVectorParameter("Loads", "P", "Applied loads", GH_ParamAccess.list, new Vector3d(0, 0, 0));
-            pManager.AddNumberParameter("Load Scale", "Pscale", "Scale factor for length of arrows", GH_ParamAccess.item, 1.0);
+            pManager.AddNumberParameter("Load Scale", "Pscale", "Scale factor for length of arrows", GH_ParamAccess.item, 100);
             pManager.AddColourParameter("ColourMin", "Cmin", "Colour for minimum value", GH_ParamAccess.item, pink);
             pManager.AddColourParameter("ColourMed", "Cmed", "Colour for neutral value", GH_ParamAccess.item, lightgray);
             pManager.AddColourParameter("ColourMax", "Cmax", "Colour for maximum value",
                 GH_ParamAccess.item, blue);
             pManager.AddIntegerParameter("Color Property", "Property", "Property displayed by colour gradient", GH_ParamAccess.item, 0);
-            pManager.AddIntegerParameter("Line Thickness", "Thickness", "Thickness of preview lines", GH_ParamAccess.item, 2);
+            pManager.AddIntegerParameter("Line Thickness", "Thickness", "Thickness of preview lines", GH_ParamAccess.item, 8);
             pManager.AddColourParameter("Load Colour", "Cload", "Colour for applied loads", GH_ParamAccess.item, red);
             pManager.AddBooleanParameter("Show Loads", "Load", "Show external loads in preview", GH_ParamAccess.item, true);
             pManager.AddColourParameter("Reaction Colour", "Creaction", "Colour for support reactions", GH_ParamAccess.item, green);
-            pManager.AddBooleanParameter("Show Reactions", "Reaction", "Show anchor reactions in preview", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Show Reactions", "Reaction", "Show anchor reactions in preview", GH_ParamAccess.item, true);
 
             Param_Integer param = pManager[7] as Param_Integer;
             param.AddNamedValue("None", -1);

@@ -9,6 +9,7 @@ using Rhino.Render.ChangeQueue;
 using System.Linq;
 using Grasshopper.GUI.Gradient;
 using System.Runtime.InteropServices;
+using FDMremote.Properties;
 
 namespace FDMremote.GH_Materialization
 {
@@ -207,26 +208,6 @@ namespace FDMremote.GH_Materialization
 
                     args.Display.DrawGradientLines(new Line[] { edgeLines[i] }, thickness, stops, edgeLines[i].From, edgeLines[i].To, true, 1);
 
-                    //if (showTags)
-                    //{
-                    //    string text = unstressedValues[i];
-                    //    Plane pl;
-                    //    args.Viewport.GetFrustumFarPlane(out pl);
-
-                    //    pl.Origin = edgeLines[i].PointAt(0.5);
-
-                    //    args.Display.Draw3dText(text,
-                    //        textColour,
-                    //        pl,
-                    //        textSize,
-                    //        "Arial",
-                    //        false,
-                    //        false,
-                    //        Rhino.DocObjects.TextHorizontalAlignment.Center,
-                    //        Rhino.DocObjects.TextVerticalAlignment.Middle);
-
-
-                    //}
                 }
 
                 if (showTags)
@@ -278,26 +259,6 @@ namespace FDMremote.GH_Materialization
                         args.Display.DrawPoint(points[i], Rhino.Display.PointStyle.RoundSimple, radius, colors[i]);
                     }
 
-                    //if (showTags)
-                    //{
-                    //    for (int i = 0; i < points.Count; i++)
-                    //    {
-                    //        string text = pointIDs[i];
-                    //        Plane pl;
-                    //        args.Viewport.GetFrustumFarPlane(out pl);
-                    //        pl.Origin = points[i];
-
-                    //        args.Display.Draw3dText(text,
-                    //            textColour,
-                    //            pl,
-                    //            textSize,
-                    //            "Arial",
-                    //            false,
-                    //            false,
-                    //            Rhino.DocObjects.TextHorizontalAlignment.Center,
-                    //            Rhino.DocObjects.TextVerticalAlignment.Middle);
-                    //    }
-                    //}
                 }
 
 
@@ -356,11 +317,6 @@ to Node {endnode}";
                             Plane pl = Plane.WorldXY;
                             pl.Origin = flatLines[i].PointAt(0.5) + textoffset;
 
-                            //Rhino.Display.Text3d drawtext = new Rhino.Display.Text3d(text, pl, textSize);
-
-                            //args.Display.Draw3dText(drawtext, textColour);
-                            //drawtext.Dispose();
-
                             args.Display.Draw3dText(text,
                                 textColour,
                                 pl,
@@ -399,26 +355,6 @@ to Node {endnode}";
                            args.Display.DrawPoint(projectionPoints[i], Rhino.Display.PointStyle.RoundSimple, radius, colors[i]);
                         }
 
-                        //if (showTags)
-                        //{
-                        //    for (int i = 0; i < projectionPoints.Count; i++)
-                        //    {
-                        //        string text = pointIDs[i];
-                        //        Plane pl = Plane.WorldXY;
-
-                        //        pl.Origin = projectionPoints[i] + new Vector3d(0, 0, 0.1);
-
-                        //        args.Display.Draw3dText(text,
-                        //            textColour,
-                        //            pl,
-                        //            textSize,
-                        //            "Arial",
-                        //            false,
-                        //            false,
-                        //            Rhino.DocObjects.TextHorizontalAlignment.Center,
-                        //            Rhino.DocObjects.TextVerticalAlignment.Middle);
-                        //    }
-                        //}
                     }
 
                 }
@@ -475,10 +411,7 @@ to Node {endnode}";
                             Plane pl = Plane.WorldXY;
                             pl.Origin = straightLines[i].PointAt(0.5) + textoffset;
 
-                            //Rhino.Display.Text3d drawtext = new Rhino.Display.Text3d(text, pl, textSize);
 
-                            //args.Display.Draw3dText(drawtext, textColour);
-                            //drawtext.Dispose();
 
                             args.Display.Draw3dText(text,
                                 textColour,
@@ -518,26 +451,6 @@ to Node {endnode}";
                             args.Display.DrawPoint(straightPoints[i], Rhino.Display.PointStyle.RoundSimple, radius, straightPointColors[i]);
                         }
 
-                        //if (showTags)
-                        //{
-                        //    for (int i = 0; i < straightPoints.Count; i++)
-                        //    {
-                        //        string text = straightPointIDs[i];
-                        //        Plane pl = Plane.WorldXY;
-
-                        //        pl.Origin = straightPoints[i];
-
-                        //        args.Display.Draw3dText(text,
-                        //            textColour,
-                        //            pl,
-                        //            textSize,
-                        //            "Arial",
-                        //            false,
-                        //            false,
-                        //            Rhino.DocObjects.TextHorizontalAlignment.Center,
-                        //            Rhino.DocObjects.TextVerticalAlignment.Middle);
-                        //    }
-                        //}
                     }
                 }
                 
@@ -749,15 +662,7 @@ to Node {endnode}";
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon
-        {
-            get
-            {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
-            }
-        }
+        protected override System.Drawing.Bitmap Icon => Resources.Maker;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
