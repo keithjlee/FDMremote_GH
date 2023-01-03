@@ -30,6 +30,7 @@ namespace FDMremote.GH_Materialization
         bool showTags; //show text size
         Vector3d straightOffset;
         Vector3d projectionOffset;
+        int indexer;
 
         //Visualization
         System.Drawing.Color F0;
@@ -51,7 +52,6 @@ namespace FDMremote.GH_Materialization
         List<System.Drawing.Color> straightPointColors;
         List<string> straightPointIDs;
         List<Point3d> projectionPoints;
-        List<System.Drawing.Color> projectionPointColors;
         List<System.Drawing.Color> colors;
         List<string> pointIDs;
         Line[] edgeLines;
@@ -63,7 +63,6 @@ namespace FDMremote.GH_Materialization
         List<string> unstressedValues;
         List<(string, string)> edgeIDs;
         List<(System.Drawing.Color, System.Drawing.Color)> edgecolors;
-        double lmax;
 
         //default colours
         readonly System.Drawing.Color darkblue = System.Drawing.Color.FromArgb(3, 0, 198);
@@ -71,7 +70,7 @@ namespace FDMremote.GH_Materialization
         readonly System.Drawing.Color magenta = System.Drawing.Color.FromArgb(237, 30, 121);
         
 
-
+        Vector3d textoffset;
 
         /// <summary>
         /// Initializes a new instance of the MakeHelper class.
@@ -93,14 +92,14 @@ namespace FDMremote.GH_Materialization
         {
             pManager.AddBooleanParameter("Show", "Show", "Show make information", GH_ParamAccess.item, true);
             pManager.AddGenericParameter("Network", "Network", "Network to materialize", GH_ParamAccess.item);
-            pManager.AddNumberParameter("MaterialStiffness", "E", "Young's Modulus of edge (VERIFY YOUR UNITS)", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Area", "A", "Cross-sectional area of edge VERIFY YOUR UNITS)", GH_ParamAccess.item);
-            pManager.AddBooleanParameter("ShowNodes", "Nodes", "Show node spheres", GH_ParamAccess.item, true);
-            pManager.AddIntegerParameter("NodeRadius", "Radius", "Radius of node spheres", GH_ParamAccess.item, 10);
+            pManager.AddNumberParameter("MaterialStiffness", "E", "Young's Modulus of edge (VERIFY YOUR UNITS)", GH_ParamAccess.item, 100);
+            pManager.AddNumberParameter("Area", "A", "Cross-sectional area of edge VERIFY YOUR UNITS)", GH_ParamAccess.item, 10);
+            pManager.AddBooleanParameter("ShowNodes", "Nodes", "Show node spheres", GH_ParamAccess.item, false);
+            pManager.AddIntegerParameter("NodeRadius", "Radius", "Radius of node spheres", GH_ParamAccess.item, 5);
             pManager.AddColourParameter("FixedColour1", "F0", "Gradient extrema 1 for fixed nodes", GH_ParamAccess.item, lightgray);
             pManager.AddColourParameter("FixedColour2", "F1", "Gradient extrema 2 for fixed nodes", GH_ParamAccess.item, darkblue);
             pManager.AddColourParameter("FreeColour1", "N0", "Gradient extrema 1 for free nodes", GH_ParamAccess.item, System.Drawing.Color.Black);
-            pManager.AddColourParameter("FreeColour2", "N1", "Gradient extrema 2 for free nodes", GH_ParamAccess.item, System.Drawing.Color.Fuchsia);
+            pManager.AddColourParameter("FreeColour2", "N1", "Gradient extrema 2 for free nodes", GH_ParamAccess.item, magenta);
             pManager.AddIntegerParameter("EdgeThickness", "Thickness", "Thickness of edge lines", GH_ParamAccess.item, 5);
             //pManager.AddVectorParameter("StraightOffset", "StraightOffset", "Offset of drawn straight edges", GH_ParamAccess.item) ;
             pManager.AddNumberParameter("StraightSpacing", "Spacing", "Spacing of straight edges", GH_ParamAccess.item, 10.0);
@@ -109,11 +108,14 @@ namespace FDMremote.GH_Materialization
             pManager.AddBooleanParameter("ShowProjection", "Projection", "Show projection drawing", GH_ParamAccess.item, true);
             pManager.AddBooleanParameter("ShowPairs", "Pairs", "Show curve-curve pairs", GH_ParamAccess.item, false);
             pManager.AddColourParameter("PairColour", "Cpair", "Colour of pair lines", GH_ParamAccess.item, System.Drawing.Color.LightGray);
-            pManager.AddIntegerParameter("TextSize", "TextSize", "Size of text tags", GH_ParamAccess.item, 20);
+            pManager.AddIntegerParameter("TextSize", "TextSize", "Size of text tags", GH_ParamAccess.item, 3);
             pManager.AddBooleanParameter("ShowText", "Text", "Show text tags", GH_ParamAccess.item, true);
             pManager.AddColourParameter("TextColour", "Ctext", "Colour of tags", GH_ParamAccess.item, System.Drawing.Color.Black);
             pManager.AddVectorParameter("StraightOffset", "StraightOffset", "Offset of straight edges", GH_ParamAccess.item, new Vector3d(0, 0, 0));
             pManager.AddVectorParameter("ProjectionOffset", "ProjOffset", "Offset of projection edges", GH_ParamAccess.item, new Vector3d(0, 0, 0));
+            pManager.AddNumberParameter("TextOffset", "TextOffset", "Offset of text tags in Z-direction",
+                GH_ParamAccess.item, 0.5);
+            pManager.AddIntegerParameter("PairIndexer", "Indexer", "Isolate element pair information", GH_ParamAccess.item, -1);
         }
 
         /// <summary>
@@ -121,6 +123,15 @@ namespace FDMremote.GH_Materialization
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddLineParameter("ProjectedCurves", "Projection", "Projected edges", GH_ParamAccess.list);
+            pManager.AddLineParameter("ProjectedPairs", "ProjPairs", "Pair lines of projected edges", GH_ParamAccess.list);
+            pManager.AddLineParameter("StraightCurves", "Straight", "Straight unstressed edges", GH_ParamAccess.list);
+            pManager.AddLineParameter("StraightPairs", "StraightPairs", "Pair lines of straight unstressed edges", GH_ParamAccess.list);
+
+            pManager.HideParameter(0);
+            pManager.HideParameter(1);
+            pManager.HideParameter(2);
+            pManager.HideParameter(3);
         }
 
         /// <summary>
@@ -131,12 +142,12 @@ namespace FDMremote.GH_Materialization
         {
             //initialize
             //network = new Network();
-
+            double offsetval = 0;
             //assign
             DA.GetData(0, ref show);
             if (!DA.GetData(1, ref network)) return;
-            if (!DA.GetData(2, ref E)) return;
-            if (!DA.GetData(3, ref A)) return;
+            DA.GetData(2, ref E);
+            DA.GetData(3, ref A);
             DA.GetData(4, ref nodes);
             DA.GetData(5, ref radius);
             DA.GetData(6, ref F0);
@@ -154,12 +165,30 @@ namespace FDMremote.GH_Materialization
             DA.GetData(18, ref textColour);
             DA.GetData(19, ref straightOffset);
             DA.GetData(20, ref projectionOffset);
+            DA.GetData(21, ref offsetval);
+
+            DA.GetData(22, ref indexer);
+
+            //make sure indices are out of bounds
+            if (indexer > network.Curves.Count - 1)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Bounds of indexer exceeds number of elements in network");
+            }
+
+            
+
+            textoffset = Vector3d.ZAxis * offsetval;
 
             MakeGradients(); //make colour gradients
             GetBB(); //get bounds information
             GetIDs(); //get tag information
             GetLengths(); //get length information
             GetPairs(); //get curve curve pairs
+
+            DA.SetDataList(0, flatLines);
+            DA.SetDataList(1, pairsFlat);
+            DA.SetDataList(2, straightLines);
+            DA.SetDataList(3, pairsStraight);
         }
 
         public override void DrawViewportWires(IGH_PreviewArgs args)
@@ -178,11 +207,37 @@ namespace FDMremote.GH_Materialization
 
                     args.Display.DrawGradientLines(new Line[] { edgeLines[i] }, thickness, stops, edgeLines[i].From, edgeLines[i].To, true, 1);
 
-                    if (showTags)
+                    //if (showTags)
+                    //{
+                    //    string text = unstressedValues[i];
+                    //    Plane pl;
+                    //    args.Viewport.GetFrustumFarPlane(out pl);
+
+                    //    pl.Origin = edgeLines[i].PointAt(0.5);
+
+                    //    args.Display.Draw3dText(text,
+                    //        textColour,
+                    //        pl,
+                    //        textSize,
+                    //        "Arial",
+                    //        false,
+                    //        false,
+                    //        Rhino.DocObjects.TextHorizontalAlignment.Center,
+                    //        Rhino.DocObjects.TextVerticalAlignment.Middle);
+
+
+                    //}
+                }
+
+                if (showTags)
+                {
+                    for (int i = 0; i < edgeLines.Length; i++)
                     {
                         string text = unstressedValues[i];
                         Plane pl;
                         args.Viewport.GetFrustumFarPlane(out pl);
+
+                        pl.Origin = edgeLines[i].PointAt(0.5);
 
                         args.Display.Draw3dText(text,
                             textColour,
@@ -194,35 +249,55 @@ namespace FDMremote.GH_Materialization
                             Rhino.DocObjects.TextHorizontalAlignment.Center,
                             Rhino.DocObjects.TextVerticalAlignment.Middle);
                     }
+
+                    for (int i = 0; i < points.Count; i++)
+                    {
+                        string text = pointIDs[i];
+                        Plane pl;
+                        args.Viewport.GetFrustumFarPlane(out pl);
+                        pl.Origin = points[i];
+
+                        args.Display.Draw3dText(text,
+                            textColour,
+                            pl,
+                            textSize,
+                            "Arial",
+                            false,
+                            false,
+                            Rhino.DocObjects.TextHorizontalAlignment.Center,
+                            Rhino.DocObjects.TextVerticalAlignment.Middle);
+                    }
+
                 }
 
                 if (nodes)
                 {
                     //draw nodes
-                    for (int i = 0; i < projectionPoints.Count; i++)
+                    for (int i = 0; i < points.Count; i++)
                     {
-                        args.Display.DrawPoint(projectionPoints[i], Rhino.Display.PointStyle.RoundSimple, radius, projectionPointColors[i]);
+                        args.Display.DrawPoint(points[i], Rhino.Display.PointStyle.RoundSimple, radius, colors[i]);
                     }
 
-                    if (showTags)
-                    {
-                        for (int i = 0; i < points.Count; i++)
-                        {
-                            string text = pointIDs[i];
-                            Plane pl;
-                            args.Viewport.GetFrustumFarPlane(out pl);
+                    //if (showTags)
+                    //{
+                    //    for (int i = 0; i < points.Count; i++)
+                    //    {
+                    //        string text = pointIDs[i];
+                    //        Plane pl;
+                    //        args.Viewport.GetFrustumFarPlane(out pl);
+                    //        pl.Origin = points[i];
 
-                            args.Display.Draw3dText(text,
-                                textColour,
-                                pl,
-                                textSize,
-                                "Arial",
-                                false,
-                                false,
-                                Rhino.DocObjects.TextHorizontalAlignment.Center,
-                                Rhino.DocObjects.TextVerticalAlignment.Middle);
-                        }
-                    }
+                    //        args.Display.Draw3dText(text,
+                    //            textColour,
+                    //            pl,
+                    //            textSize,
+                    //            "Arial",
+                    //            false,
+                    //            false,
+                    //            Rhino.DocObjects.TextHorizontalAlignment.Center,
+                    //            Rhino.DocObjects.TextVerticalAlignment.Middle);
+                    //    }
+                    //}
                 }
 
 
@@ -241,7 +316,36 @@ namespace FDMremote.GH_Materialization
 
                     if (showPairs)
                     {
-                        args.Display.DrawLines(pairsFlat, pairColour, thickness / 2);
+                        if (indexer == -1)
+                        {
+                            args.Display.DrawLines(pairsFlat, pairColour, thickness / 2);
+                        }
+                        else
+                        {
+                            var pair = pairsFlat[indexer];
+                            args.Display.DrawLine(pair, pairColour, thickness / 2);
+
+                            if (!showStraight)
+                            {
+                                string eid = indexer.ToString();
+                                string startnode = edgeIDs[indexer].Item1;
+                                string endnode = edgeIDs[indexer].Item2;
+                                string initlength = unstressedValues[indexer];
+
+                                string info = $@"Edge {eid}:
+Cut to L = {initlength}
+Connect from Node {startnode}
+to Node {endnode}";
+                                Point2d tag = new Point2d(10, args.Viewport.Bounds.Height / 2);
+
+                                args.Display.Draw2dText(info,
+                                    pairColour,
+                                    tag,
+                                    false,
+                                    25);
+                            }
+                            
+                        }
                     }
 
                     if (showTags)
@@ -250,12 +354,30 @@ namespace FDMremote.GH_Materialization
                         {
                             string text = unstressedValues[i];
                             Plane pl = Plane.WorldXY;
-                            pl.Origin = flatLines[i].PointAt(0.5);
+                            pl.Origin = flatLines[i].PointAt(0.5) + textoffset;
 
                             //Rhino.Display.Text3d drawtext = new Rhino.Display.Text3d(text, pl, textSize);
 
                             //args.Display.Draw3dText(drawtext, textColour);
                             //drawtext.Dispose();
+
+                            args.Display.Draw3dText(text,
+                                textColour,
+                                pl,
+                                textSize,
+                                "Arial",
+                                false,
+                                false,
+                                Rhino.DocObjects.TextHorizontalAlignment.Center,
+                                Rhino.DocObjects.TextVerticalAlignment.Middle);
+                        }
+
+                        for (int i = 0; i < projectionPoints.Count; i++)
+                        {
+                            string text = pointIDs[i];
+                            Plane pl = Plane.WorldXY;
+
+                            pl.Origin = projectionPoints[i] + textoffset;
 
                             args.Display.Draw3dText(text,
                                 textColour,
@@ -274,31 +396,31 @@ namespace FDMremote.GH_Materialization
                         //draw nodes
                         for (int i = 0; i < projectionPoints.Count; i++)
                         {
-                            args.Display.DrawPoint(projectionPoints[i], Rhino.Display.PointStyle.RoundSimple, radius, projectionPointColors[i]);
+                           args.Display.DrawPoint(projectionPoints[i], Rhino.Display.PointStyle.RoundSimple, radius, colors[i]);
                         }
 
-                        if (showTags)
-                        {
-                            for (int i = 0; i < projectionPoints.Count; i++)
-                            {
-                                string text = pointIDs[i];
-                                Plane pl = Plane.WorldXY;
+                        //if (showTags)
+                        //{
+                        //    for (int i = 0; i < projectionPoints.Count; i++)
+                        //    {
+                        //        string text = pointIDs[i];
+                        //        Plane pl = Plane.WorldXY;
 
-                                pl.Origin = projectionPoints[i];
+                        //        pl.Origin = projectionPoints[i] + new Vector3d(0, 0, 0.1);
 
-                                args.Display.Draw3dText(text,
-                                    textColour,
-                                    pl,
-                                    textSize,
-                                    "Arial",
-                                    false,
-                                    false,
-                                    Rhino.DocObjects.TextHorizontalAlignment.Center,
-                                    Rhino.DocObjects.TextVerticalAlignment.Middle);
-                            }
-                        }
+                        //        args.Display.Draw3dText(text,
+                        //            textColour,
+                        //            pl,
+                        //            textSize,
+                        //            "Arial",
+                        //            false,
+                        //            false,
+                        //            Rhino.DocObjects.TextHorizontalAlignment.Center,
+                        //            Rhino.DocObjects.TextVerticalAlignment.Middle);
+                        //    }
+                        //}
                     }
-                    
+
                 }
 
                 //draw straight
@@ -315,7 +437,34 @@ namespace FDMremote.GH_Materialization
 
                     if (showPairs)
                     {
-                        args.Display.DrawLines(pairsStraight, pairColour, thickness / 2);
+                        //args.Display.DrawLines(pairsStraight, pairColour, thickness / 2);
+                        if (indexer == -1)
+                        {
+                            args.Display.DrawLines(pairsStraight, pairColour, thickness / 2);
+                        }
+                        else
+                        {
+                            //int index = indexer[i];
+                            var pair = pairsStraight[indexer];
+                            args.Display.DrawLine(pair, pairColour, thickness / 2);
+
+                            string eid = indexer.ToString();
+                            string startnode = edgeIDs[indexer].Item1;
+                            string endnode = edgeIDs[indexer].Item2;
+                            string initlength = unstressedValues[indexer];
+
+                            string info = $@"Edge {eid}:
+Cut to L = {initlength}
+Connect from Node {startnode}
+to Node {endnode}";
+                            Point2d tag = new Point2d(10, args.Viewport.Bounds.Height/2);
+
+                            args.Display.Draw2dText(info,
+                                pairColour,
+                                tag,
+                                false,
+                                25);
+                        }
                     }
 
                     if (showTags)
@@ -324,12 +473,30 @@ namespace FDMremote.GH_Materialization
                         {
                             string text = unstressedValues[i];
                             Plane pl = Plane.WorldXY;
-                            pl.Origin = straightLines[i].PointAt(0.5);
+                            pl.Origin = straightLines[i].PointAt(0.5) + textoffset;
 
                             //Rhino.Display.Text3d drawtext = new Rhino.Display.Text3d(text, pl, textSize);
 
                             //args.Display.Draw3dText(drawtext, textColour);
                             //drawtext.Dispose();
+
+                            args.Display.Draw3dText(text,
+                                textColour,
+                                pl,
+                                textSize,
+                                "Arial",
+                                false,
+                                false,
+                                Rhino.DocObjects.TextHorizontalAlignment.Center,
+                                Rhino.DocObjects.TextVerticalAlignment.Middle);
+                        }
+
+                        for (int i = 0; i < straightPoints.Count; i++)
+                        {
+                            string text = straightPointIDs[i];
+                            Plane pl = Plane.WorldXY;
+
+                            pl.Origin = straightPoints[i] + textoffset;
 
                             args.Display.Draw3dText(text,
                                 textColour,
@@ -351,26 +518,26 @@ namespace FDMremote.GH_Materialization
                             args.Display.DrawPoint(straightPoints[i], Rhino.Display.PointStyle.RoundSimple, radius, straightPointColors[i]);
                         }
 
-                        if (showTags)
-                        {
-                            for (int i = 0; i < straightPoints.Count; i++)
-                            {
-                                string text = straightPointIDs[i];
-                                Plane pl = Plane.WorldXY;
+                        //if (showTags)
+                        //{
+                        //    for (int i = 0; i < straightPoints.Count; i++)
+                        //    {
+                        //        string text = straightPointIDs[i];
+                        //        Plane pl = Plane.WorldXY;
 
-                                pl.Origin = straightPoints[i];
+                        //        pl.Origin = straightPoints[i];
 
-                                args.Display.Draw3dText(text,
-                                    textColour,
-                                    pl,
-                                    textSize,
-                                    "Arial",
-                                    false,
-                                    false,
-                                    Rhino.DocObjects.TextHorizontalAlignment.Center,
-                                    Rhino.DocObjects.TextVerticalAlignment.Middle);
-                            }
-                        }
+                        //        args.Display.Draw3dText(text,
+                        //            textColour,
+                        //            pl,
+                        //            textSize,
+                        //            "Arial",
+                        //            false,
+                        //            false,
+                        //            Rhino.DocObjects.TextHorizontalAlignment.Center,
+                        //            Rhino.DocObjects.TextVerticalAlignment.Middle);
+                        //    }
+                        //}
                     }
                 }
                 
@@ -445,7 +612,7 @@ namespace FDMremote.GH_Materialization
             //ids
             points = new List<Point3d>();
             projectionPoints= new List<Point3d>();
-            projectionPointColors = new List<System.Drawing.Color>();
+            //projectionPointColors = new List<System.Drawing.Color>();
             colors = new List<System.Drawing.Color>();
             pointIDs = new List<string>();
             edgeIDs = new List<(string, string)>();
@@ -459,6 +626,11 @@ namespace FDMremote.GH_Materialization
                 points.Add(network.Points[i]);
                 pointIDs.Add("");
                 colors.Add(System.Drawing.Color.Black);
+
+                Point3d projpoint = new Point3d(network.Points[i]);
+                projpoint.Z = pbl.Z;
+                projpoint += projectionStart;
+                projectionPoints.Add(projpoint);
             }
 
             //updated fixed points
@@ -493,18 +665,18 @@ namespace FDMremote.GH_Materialization
 
 
                 Point3d startpoint = points[istart];
-                var startcol = colors[istart];
+                //var startcol = colors[istart];
                 Point3d startpointflat = new Point3d(startpoint.X, startpoint.Y, pbl.Z) + projectionStart;
                 Point3d endpoint = points[iend];
-                var endcol = colors[iend];
+                //var endcol = colors[iend];
                 Point3d endpointflat = new Point3d(endpoint.X, endpoint.Y, pbl.Z) + projectionStart;
 
                 edgeLines[i] = new Line(startpoint, endpoint);
                 flatLines[i] = new Line(startpointflat, endpointflat);
-                projectionPoints.Add(startpointflat);
-                projectionPointColors.Add(startcol);
-                projectionPoints.Add(endpointflat);
-                projectionPointColors.Add(endcol);
+                //projectionPoints.Add(startpointflat);
+                //projectionPointColors.Add(startcol);
+                //projectionPoints.Add(endpointflat);
+                //projectionPointColors.Add(endcol);
             }
         }
 
@@ -572,7 +744,6 @@ namespace FDMremote.GH_Materialization
                 unstressedValues.Add(lengthval);
             }
 
-            lmax = unstressedLengths.Max();
         }
 
         /// <summary>

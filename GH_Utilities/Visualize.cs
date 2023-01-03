@@ -31,6 +31,7 @@ namespace FDMremote.GH_Analysis
         bool load;
         bool react;
         int prop;
+        bool show;
 
         //default colours
         readonly System.Drawing.Color lightgray = System.Drawing.Color.FromArgb(230, 231, 232);
@@ -55,6 +56,7 @@ namespace FDMremote.GH_Analysis
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
+            pManager.AddBooleanParameter("Show", "Show", "Active status of component", GH_ParamAccess.item, true);
             pManager.AddGenericParameter("Network", "Network", "Network to visualize", GH_ParamAccess.item);
             pManager.AddVectorParameter("Loads", "P", "Applied loads", GH_ParamAccess.list, new Vector3d(0, 0, 0));
             pManager.AddNumberParameter("Load Scale", "Pscale", "Scale factor for length of arrows", GH_ParamAccess.item, 1.0);
@@ -69,7 +71,7 @@ namespace FDMremote.GH_Analysis
             pManager.AddColourParameter("Reaction Colour", "Creaction", "Colour for support reactions", GH_ParamAccess.item, green);
             pManager.AddBooleanParameter("Show Reactions", "Reaction", "Show anchor reactions in preview", GH_ParamAccess.item, false);
 
-            Param_Integer param = pManager[6] as Param_Integer;
+            Param_Integer param = pManager[7] as Param_Integer;
             param.AddNamedValue("None", -1);
             param.AddNamedValue("Force", 0);
             param.AddNamedValue("Q", 1);
@@ -103,18 +105,19 @@ namespace FDMremote.GH_Analysis
             react = false;
 
             //Assign
-            if(!DA.GetData(0, ref network)) return;
-            DA.GetDataList(1, loads);
-            DA.GetData(2, ref scale);
-            DA.GetData(3, ref c0);
-            DA.GetData(4, ref cmed);
-            DA.GetData(5, ref c1);
-            DA.GetData(6, ref prop);
-            DA.GetData(7, ref thickness);
-            DA.GetData(8, ref cload);
-            DA.GetData(9, ref load);
-            DA.GetData(10, ref creact);
-            DA.GetData(11, ref react);
+            DA.GetData(0, ref show);
+            if(!DA.GetData(1, ref network)) return;
+            DA.GetDataList(2, loads);
+            DA.GetData(3, ref scale);
+            DA.GetData(4, ref c0);
+            DA.GetData(5, ref cmed);
+            DA.GetData(6, ref c1);
+            DA.GetData(7, ref prop);
+            DA.GetData(8, ref thickness);
+            DA.GetData(9, ref cload);
+            DA.GetData(10, ref load);
+            DA.GetData(11, ref creact);
+            DA.GetData(12, ref react);
 
             //Lines and forces
             externalforces = LoadMaker(network.Points, network.N, loads, scale);
@@ -155,19 +158,21 @@ namespace FDMremote.GH_Analysis
         {
             base.DrawViewportWires(args);
 
-            if (load) args.Display.DrawArrows(externalforces, cload);
-
-            if (react) args.Display.DrawArrows(reactionforces, creact);
-
-            if (prop == -1) args.Display.DrawLines(edges, c1, thickness);
-            else
+            if (show)
             {
-                for (int i = 0; i < edges.Length; i++)
+                if (load) args.Display.DrawArrows(externalforces, cload);
+
+                if (react) args.Display.DrawArrows(reactionforces, creact);
+
+                if (prop == -1) args.Display.DrawLines(edges, c1, thickness);
+                else
                 {
-                    args.Display.DrawLine(edges[i], grad.ColourAt(property[i]), thickness);
+                    for (int i = 0; i < edges.Length; i++)
+                    {
+                        args.Display.DrawLine(edges[i], grad.ColourAt(property[i]), thickness);
+                    }
                 }
             }
-            
         }
 
         public Line[] ToLines(List<Curve> curves)
