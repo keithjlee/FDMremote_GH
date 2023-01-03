@@ -295,7 +295,7 @@ namespace FDMremote.GH_Materialization
                             var pair = pairsFlat[indexer];
                             args.Display.DrawLine(pair, pairColour, thickness / 2);
 
-                            if (!showStraight)
+                            if (!showStraight && showTags)
                             {
                                 string eid = indexer.ToString();
                                 string startnode = edgeIDs[indexer].Item1;
@@ -399,17 +399,20 @@ to Node {endnode}";
                             string endnode = edgeIDs[indexer].Item2;
                             string initlength = unstressedValues[indexer];
 
-                            string info = $@"Edge {eid}:
+                            if (showTags)
+                            {
+                                string info = $@"Edge {eid}:
 Cut to L = {initlength}
 Connect from Node {startnode}
 to Node {endnode}";
-                            Point2d tag = new Point2d(10, args.Viewport.Bounds.Height/2);
+                                Point2d tag = new Point2d(10, args.Viewport.Bounds.Height / 2);
 
-                            args.Display.Draw2dText(info,
-                                pairColour,
-                                tag,
-                                false,
-                                25);
+                                args.Display.Draw2dText(info,
+                                    pairColour,
+                                    tag,
+                                    false,
+                                    25);
+                            }
                         }
                     }
 

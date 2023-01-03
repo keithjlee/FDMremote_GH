@@ -7,6 +7,7 @@ using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
 using FDMremote.Utilities;
 using FDMremote.Properties;
+using Rhino.Display;
 
 namespace FDMremote.GH_Design.Experimental
 {
@@ -153,9 +154,15 @@ namespace FDMremote.GH_Design.Experimental
 
             foreach (int index in network.N)
             {
-                inputPoints.Add(network.Points[index]);
+                inputPoints.Add(new Point3d(network.Points[index]));
             }
         }
+
+        //public override void DrawViewportMeshes(IGH_PreviewArgs args)
+        //{
+        //    base.DrawViewportMeshes(args);
+
+        //}
 
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
@@ -163,10 +170,16 @@ namespace FDMremote.GH_Design.Experimental
             Plane plane;
             args.Viewport.GetFrustumFarPlane(out plane);
 
+            
+
             if (show)
             {
                 args.Display.DrawPoints(offsetPoints, Rhino.Display.PointStyle.Circle, 3, System.Drawing.Color.MediumOrchid);
                 args.Display.DrawSurface(offsetSurf, System.Drawing.Color.MediumOrchid, 6);
+
+                //var mat = new DisplayMaterial(System.Drawing.Color.MediumOrchid, 0.5);
+                //args.Display.DrawBrepShaded(offsetSurf.ToBrep(), mat);
+
 
                 for (int i = 0; i < names.Count; i++)
                 {
@@ -175,16 +188,16 @@ namespace FDMremote.GH_Design.Experimental
                     plane.Origin = point;
 
                     Rhino.Display.Text3d drawText = new Rhino.Display.Text3d(text, plane, scale);
-                    args.Display.Draw3dText(drawText, System.Drawing.Color.MediumOrchid);
+                    args.Display.Draw3dText(drawText, System.Drawing.Color.Black);
                     drawText.Dispose();
                 }
 
-                Point2d tag = new Point2d(5, 70);
-                args.Display.Draw2dText("FORCE MAGNITUDE CONTROL SURFACE",
-                    System.Drawing.Color.MediumOrchid,
-                    tag,
-                    false,
-                    scale);
+                //Point2d tag = new Point2d(5, 70);
+                //args.Display.Draw2dText("FORCE MAGNITUDE CONTROL SURFACE",
+                //    System.Drawing.Color.MediumOrchid,
+                //    tag,
+                //    false,
+                //    scale);
             }
         }
 
@@ -192,11 +205,8 @@ namespace FDMremote.GH_Design.Experimental
         {
             get
             {
-                BoundingBox b = new BoundingBox();
+                BoundingBox b = new BoundingBox(offsetPoints);
                 b.Union(bb);
-
-                var points1 = new Point3dList(offsetPoints);
-                b.Union(points1.BoundingBox);
 
                 b.Union(offsetSurf.GetBoundingBox(true));
 

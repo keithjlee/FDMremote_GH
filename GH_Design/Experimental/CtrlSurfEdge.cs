@@ -9,6 +9,7 @@ using Rhino.Collections;
 using Rhino.DocObjects;
 using FDMremote.Utilities;
 using FDMremote.Properties;
+using Rhino.Display;
 
 namespace FDMremote.GH_Design.Experimental
 {
@@ -67,7 +68,7 @@ namespace FDMremote.GH_Design.Experimental
                 GH_ParamAccess.item, 0.1) ;
             pManager.AddNumberParameter("CtrlValue", "Value", "Surface control point values", GH_ParamAccess.list, 0);
             pManager.AddBooleanParameter("ShowSurface", "Show", "Show the control surface", GH_ParamAccess.item, true) ;
-            pManager.AddIntegerParameter("TextScale", "Scale", "Scale of text tags", GH_ParamAccess.item, 20);
+            pManager.AddIntegerParameter("TextScale", "TextScale", "Scale of text tags", GH_ParamAccess.item, 20);
         }
 
         /// <summary>
@@ -158,6 +159,9 @@ namespace FDMremote.GH_Design.Experimental
                 args.Display.DrawPoints(offsetPoints, Rhino.Display.PointStyle.Circle, 3, System.Drawing.Color.MediumAquamarine);
                 args.Display.DrawSurface(offsetSurf, System.Drawing.Color.MediumAquamarine, 6);
 
+                //var mat = new DisplayMaterial(System.Drawing.Color.MediumAquamarine, 0.5);
+                //args.Display.DrawBrepShaded(offsetSurf.ToBrep(), mat);
+
                 for (int i = 0; i < names.Count; i++)
                 {
                     string text = names[i];
@@ -165,17 +169,17 @@ namespace FDMremote.GH_Design.Experimental
                     plane.Origin = point;
 
                     Rhino.Display.Text3d drawText = new Rhino.Display.Text3d(text, plane, scale);
-                    args.Display.Draw3dText(drawText, System.Drawing.Color.MediumAquamarine);
+                    args.Display.Draw3dText(drawText, System.Drawing.Color.Black);
                     drawText.Dispose();
                 }
 
                 //Point2d tag = new Point2d(5, args.Viewport.Bounds.Height-50);
-                Point2d tag = new Point2d(5, 50);
-                args.Display.Draw2dText("FORCE DENSITY CONTROL SURFACE",
-                    System.Drawing.Color.MediumAquamarine,
-                    tag,
-                    false,
-                    scale);
+                //Point2d tag = new Point2d(5, 50);
+                //args.Display.Draw2dText("FORCE DENSITY CONTROL SURFACE",
+                //    System.Drawing.Color.MediumAquamarine,
+                //    tag,
+                //    false,
+                //    scale);
             }
         }
 
