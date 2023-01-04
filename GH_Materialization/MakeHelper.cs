@@ -33,6 +33,8 @@ namespace FDMremote.GH_Materialization
         Vector3d projectionOffset;
         int indexer;
 
+        bool show3d; 
+
         //Visualization
         System.Drawing.Color F0;
         System.Drawing.Color F1;
@@ -107,6 +109,7 @@ namespace FDMremote.GH_Materialization
             pManager.AddColourParameter("FreeColour2", "N1", "Gradient extrema 2 for free nodes", GH_ParamAccess.item, o2);
             pManager.AddIntegerParameter("EdgeThickness", "Thickness", "Thickness of edge lines", GH_ParamAccess.item, 5);
             //pManager.AddVectorParameter("StraightOffset", "StraightOffset", "Offset of drawn straight edges", GH_ParamAccess.item) ;
+            pManager.AddBooleanParameter("Show3d", "3D", "Show 3D visualization", GH_ParamAccess.item, true);
             pManager.AddNumberParameter("StraightSpacing", "Spacing", "Spacing of straight edges", GH_ParamAccess.item, 10.0);
             pManager.AddBooleanParameter("ShowStraight", "Straight", "Show straight unstressed edges", GH_ParamAccess.item, true);
             //pManager.AddVectorParameter("ProjectionOffset", "ProjOffset", "Offset of projection drawing", GH_ParamAccess.item);
@@ -160,19 +163,20 @@ namespace FDMremote.GH_Materialization
             DA.GetData(8, ref N0);
             DA.GetData(9, ref N1);
             DA.GetData(10, ref thickness);
-            DA.GetData(11, ref straightSpacing);
-            DA.GetData(12, ref showStraight);
-            DA.GetData(13, ref showProjection);
-            DA.GetData(14, ref showPairs);
-            DA.GetData(15, ref pairColour);
-            DA.GetData(16, ref textSize);
-            DA.GetData(17, ref showTags);
-            DA.GetData(18, ref textColour);
-            DA.GetData(19, ref straightOffset);
-            DA.GetData(20, ref projectionOffset);
-            DA.GetData(21, ref offsetval);
+            DA.GetData(11, ref show3d);
+            DA.GetData(12, ref straightSpacing);
+            DA.GetData(13, ref showStraight);
+            DA.GetData(14, ref showProjection);
+            DA.GetData(15, ref showPairs);
+            DA.GetData(16, ref pairColour);
+            DA.GetData(17, ref textSize);
+            DA.GetData(18, ref showTags);
+            DA.GetData(19, ref textColour);
+            DA.GetData(20, ref straightOffset);
+            DA.GetData(21, ref projectionOffset);
+            DA.GetData(22, ref offsetval);
 
-            DA.GetData(22, ref indexer);
+            DA.GetData(23, ref indexer);
 
             //make sure indices are out of bounds
             if (indexer > network.Curves.Count - 1)
@@ -208,67 +212,72 @@ namespace FDMremote.GH_Materialization
                 //args.Display.DrawBrepWires(bb.ToBrep(), magenta);
 
                 //draw edges
-                for (int i = 0; i < edgeLines.Length; i++)
-                {
-                    var stops = new Rhino.Display.ColorStop[2];
-                    stops[0] = new Rhino.Display.ColorStop(edgecolors[i].Item1, 0);
-                    stops[1] = new Rhino.Display.ColorStop(edgecolors[i].Item2, 1);
 
-                    args.Display.DrawGradientLines(new Line[] { edgeLines[i] }, thickness, stops, edgeLines[i].From, edgeLines[i].To, true, 1);
-
-                }
-
-                if (showTags)
+                if (show3d)
                 {
                     for (int i = 0; i < edgeLines.Length; i++)
                     {
-                        //string text = unstressedValues[i];
-                        string text = "E" + i.ToString();
-                        Plane pl;
-                        args.Viewport.GetFrustumFarPlane(out pl);
+                        var stops = new Rhino.Display.ColorStop[2];
+                        stops[0] = new Rhino.Display.ColorStop(edgecolors[i].Item1, 0);
+                        stops[1] = new Rhino.Display.ColorStop(edgecolors[i].Item2, 1);
 
-                        pl.Origin = edgeLines[i].PointAt(0.5);
+                        args.Display.DrawGradientLines(new Line[] { edgeLines[i] }, thickness, stops, edgeLines[i].From, edgeLines[i].To, true, 1);
 
-                        args.Display.Draw3dText(text,
-                            textColour,
-                            pl,
-                            textSize,
-                            "Arial",
-                            false,
-                            false,
-                            Rhino.DocObjects.TextHorizontalAlignment.Center,
-                            Rhino.DocObjects.TextVerticalAlignment.Middle);
                     }
 
-                    for (int i = 0; i < points.Count; i++)
+                    if (showTags)
                     {
-                        string text = pointIDs[i];
-                        Plane pl;
-                        args.Viewport.GetFrustumFarPlane(out pl);
-                        pl.Origin = points[i];
+                        for (int i = 0; i < edgeLines.Length; i++)
+                        {
+                            //string text = unstressedValues[i];
+                            string text = "E" + i.ToString();
+                            Plane pl;
+                            args.Viewport.GetFrustumFarPlane(out pl);
 
-                        args.Display.Draw3dText(text,
-                            textColour,
-                            pl,
-                            textSize,
-                            "Arial",
-                            false,
-                            false,
-                            Rhino.DocObjects.TextHorizontalAlignment.Center,
-                            Rhino.DocObjects.TextVerticalAlignment.Middle);
+                            pl.Origin = edgeLines[i].PointAt(0.5);
+
+                            args.Display.Draw3dText(text,
+                                textColour,
+                                pl,
+                                textSize,
+                                "Arial",
+                                false,
+                                false,
+                                Rhino.DocObjects.TextHorizontalAlignment.Center,
+                                Rhino.DocObjects.TextVerticalAlignment.Middle);
+                        }
+
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            string text = pointIDs[i];
+                            Plane pl;
+                            args.Viewport.GetFrustumFarPlane(out pl);
+                            pl.Origin = points[i];
+
+                            args.Display.Draw3dText(text,
+                                textColour,
+                                pl,
+                                textSize,
+                                "Arial",
+                                false,
+                                false,
+                                Rhino.DocObjects.TextHorizontalAlignment.Center,
+                                Rhino.DocObjects.TextVerticalAlignment.Middle);
+                        }
+
                     }
 
-                }
-
-                if (nodes)
-                {
-                    //draw nodes
-                    for (int i = 0; i < points.Count; i++)
+                    if (nodes)
                     {
-                        args.Display.DrawPoint(points[i], Rhino.Display.PointStyle.RoundSimple, radius, colors[i]);
-                    }
+                        //draw nodes
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            args.Display.DrawPoint(points[i], Rhino.Display.PointStyle.RoundSimple, radius, colors[i]);
+                        }
 
+                    }
                 }
+                
 
 
                 //draw projection
