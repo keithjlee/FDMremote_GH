@@ -27,7 +27,7 @@ namespace FDMremote.GH_Materialization
         double straightSpacing; //spacing of straight segments
         bool showProjection; //show projection drawing
         bool showPairs; //show curve-curve pairs
-        int textSize; //text size
+        double textSize; //text size
         bool showTags; //show text size
         Vector3d straightOffset;
         Vector3d projectionOffset;
@@ -67,7 +67,8 @@ namespace FDMremote.GH_Materialization
         List<(string, string)> edgeIDs;
         List<(System.Drawing.Color, System.Drawing.Color)> edgecolors;
         List<double> edgeLengths;
-        int n_rowcol;
+        int n_row;
+        int n_col;
 
         //default colours
         readonly System.Drawing.Color b1 = System.Drawing.Color.FromArgb(0, 79, 235);
@@ -114,7 +115,7 @@ namespace FDMremote.GH_Materialization
             pManager.AddBooleanParameter("ShowProjection", "Projection", "Show projection drawing", GH_ParamAccess.item, true);
             pManager.AddBooleanParameter("ShowPairs", "Pairs", "Show curve-curve pairs", GH_ParamAccess.item, false);
             pManager.AddColourParameter("PairColour", "Cpair", "Colour of pair lines", GH_ParamAccess.item, System.Drawing.Color.Gray);
-            pManager.AddIntegerParameter("TextSize", "TextSize", "Size of text tags", GH_ParamAccess.item, 3);
+            pManager.AddNumberParameter("TextSize", "TextSize", "Size of text tags", GH_ParamAccess.item, 3);
             pManager.AddBooleanParameter("ShowText", "Text", "Show text tags", GH_ParamAccess.item, true);
             pManager.AddColourParameter("TextColour", "Ctext", "Colour of tags", GH_ParamAccess.item, System.Drawing.Color.Black);
             pManager.AddVectorParameter("StraightOffset", "StraightOffset", "Offset of straight edges", GH_ParamAccess.item, new Vector3d(0, 0, 0));
@@ -641,19 +642,23 @@ to Node {endnode}";
 
             Vector3d width = pbr - pbl;
 
-            n_rowcol = (int)Math.Floor(Math.Sqrt(network.Curves.Count));
+            int n_rowcol = (int)Math.Floor(Math.Sqrt(network.Curves.Count));
 
+            n_row = (int)Math.Floor( (double)n_rowcol / 3);
+            if (n_row < 1) n_row = 1;
 
-            straightStart = (ptl - pbl) * 1.1 + width/2;
+            n_col = (int) Math.Floor( (double)network.Ne / n_row);
+
+            straightStart = (ptl - pbl) * 1.5 + width/2;
 
             //Vector3d xoffset = new Vector3d(-network.Ne * straightSpacing / 2, 0, 0);
-            Vector3d xoffset = new Vector3d(- n_rowcol * straightSpacing  / 2, 0, 0);
+            Vector3d xoffset = new Vector3d(- n_col * straightSpacing  / 2, 0, 0);
 
             straightStart += xoffset + straightOffset;
 
 
             //projectionStart = (pbl - ptl) * 1.1;
-            projectionStart = (pbl - pzl) / 10 + projectionOffset;
+            projectionStart = (pbl - pzl) / 3 + projectionOffset;
         }
 
         /// <summary>
@@ -788,7 +793,7 @@ to Node {endnode}";
 
             //square length
             
-            double row_spacing = unstressedLengths.Max() * 1.1 + textSize;
+            double row_spacing = unstressedLengths.Max() * 1.1 + 2.5 * textSize;
 
             int row = 0;
             int col = 0;
@@ -796,12 +801,12 @@ to Node {endnode}";
 
             for (int i = 0; i < network.Ne; i++)
             {
-                if (rowcounter > n_rowcol - 1)
+                if (rowcounter > n_col - 1)
                 {
                     row++;
                     rowcounter = 0;
                 }
-                if (col > n_rowcol - 1) col = 0;
+                if (col > n_col - 1) col = 0;
 
 
                 Vector3d rightshift = new Vector3d(straightSpacing * col, 0, 0);
