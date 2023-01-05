@@ -155,7 +155,7 @@ namespace FDMremote.GH_Utilities
             var ptl = bb.Corner(true, false, true);
             var pzl = bb.Corner(true, true, false);
 
-            baseoffset = (pbr - pbl) * 1.2;
+            baseoffset = (pbr - pbl) * 1.5;
         }
 
         /// <summary>

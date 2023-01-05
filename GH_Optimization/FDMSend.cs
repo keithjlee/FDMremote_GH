@@ -76,13 +76,17 @@ namespace FDMremote.GH_Optimization
             if (!DA.GetData(0, ref wscObj)) return;
             if (!DA.GetData(1, ref network)) return;
 
-            OBJParameters objparams = new OBJParameters();
-            //if (!DA.GetData(2, ref objparams)) return;
-            if (!DA.GetData(2, ref objparams))
-            {
-                objparams = new OBJParameters(-1e6, 1e6, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, false, 20, 1);
-                Params.Input[2].AddVolatileData(new Grasshopper.Kernel.Data.GH_Path(0), 0, objparams);
-            }
+            //OBJParameters objparams = new OBJParameters();
+            
+            //if (!DA.GetData(2, ref objparams))
+            //{
+            //    objparams = new OBJParameters(-1e6, 1e6, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 100);
+            //    Params.Input[2].AddVolatileData(new Grasshopper.Kernel.Data.GH_Path(0), 0, objparams);
+            //}
+
+            OBJParameters objparams = new OBJParameters(-1e6, 1e6, 1e-3, 1e-3, new List<OBJ> { new OBJNull() }, true, 20, 100);
+            DA.GetData(2, ref objparams);
+
             DA.GetDataList(3, loads);
             DA.GetData(4, ref close);
 
@@ -96,9 +100,9 @@ namespace FDMremote.GH_Optimization
             }
 
             OptimizationProblem optimprob = new OptimizationProblem(network, objparams, loads);
+
             if (!close) wscObj.send(JsonConvert.SerializeObject(optimprob));
             else wscObj.send("CLOSE");
-
             
             DA.SetData(0, network);
             DA.SetData(1, JsonConvert.SerializeObject(optimprob));
