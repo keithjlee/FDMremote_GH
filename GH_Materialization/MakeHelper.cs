@@ -67,6 +67,7 @@ namespace FDMremote.GH_Materialization
         List<(string, string)> edgeIDs;
         List<(System.Drawing.Color, System.Drawing.Color)> edgecolors;
         List<double> edgeLengths;
+        int n_rowcol;
 
         //default colours
         readonly System.Drawing.Color b1 = System.Drawing.Color.FromArgb(0, 79, 235);
@@ -640,9 +641,14 @@ to Node {endnode}";
 
             Vector3d width = pbr - pbl;
 
+            n_rowcol = (int)Math.Floor(Math.Sqrt(network.Curves.Count));
+
+
             straightStart = (ptl - pbl) * 1.1 + width/2;
 
-            Vector3d xoffset = new Vector3d(-network.Ne * straightSpacing / 2, 0, 0);
+            //Vector3d xoffset = new Vector3d(-network.Ne * straightSpacing / 2, 0, 0);
+            Vector3d xoffset = new Vector3d(- n_rowcol * straightSpacing  / 2, 0, 0);
+
             straightStart += xoffset + straightOffset;
 
 
@@ -778,19 +784,82 @@ to Node {endnode}";
 
                 straightPointIDs.Add(id1);
                 straightPointIDs.Add(id2);
+            }
 
-                Vector3d rightshift = new Vector3d(straightSpacing * i, 0, 0);
+            //square length
+            
+            double row_spacing = unstressedLengths.Max() * 1.1 + textSize;
 
-                Point3d startpoint = pbl + straightStart + rightshift;
-                Point3d endpoint = startpoint + Vector3d.YAxis * Lo;
+            int row = 0;
+            int col = 0;
+            int rowcounter = 0;
+
+            for (int i = 0; i < network.Ne; i++)
+            {
+                if (rowcounter > n_rowcol - 1)
+                {
+                    row++;
+                    rowcounter = 0;
+                }
+                if (col > n_rowcol - 1) col = 0;
+
+
+                Vector3d rightshift = new Vector3d(straightSpacing * col, 0, 0);
+                Vector3d upshift = new Vector3d(0, row * row_spacing, 0);
+
+                Point3d startpoint = pbl + straightStart + upshift + rightshift;
+                Point3d endpoint = startpoint + Vector3d.YAxis * unstressedLengths[i];
 
                 straightPoints.Add(startpoint);
                 straightPoints.Add(endpoint);
 
                 straightLines[i] = new Line(startpoint, endpoint);
-                string lengthval = Lo.ToString("N1");
+                string lengthval = unstressedLengths[i].ToString("N1");
                 unstressedValues.Add(lengthval);
+
+                col++;
+                rowcounter++;
             }
+
+            //for (int i = 0; i < network.Ne; i++)
+            //{
+            //    double q = network.ForceDensities[i];
+            //    Curve edge = network.Curves[i];
+
+            //    double Lf = edgeLengths[i];
+
+            //    double Lo = (Lf * E * A) / (q * Lf + E * A);
+            //    unstressedLengths.Add(Lo);
+
+            //    var indices = network.Indices[i];
+
+            //    int i1 = indices[0];
+            //    int i2 = indices[1];
+
+            //    var c1 = colors[i1];
+            //    var c2 = colors[i2];
+
+            //    straightPointColors.Add(c1);
+            //    straightPointColors.Add(c2);
+
+            //    string id1 = pointIDs[i1];
+            //    string id2 = pointIDs[i2];
+
+            //    straightPointIDs.Add(id1);
+            //    straightPointIDs.Add(id2);
+
+            //    Vector3d rightshift = new Vector3d(straightSpacing * i, 0, 0);
+
+            //    Point3d startpoint = pbl + straightStart + rightshift;
+            //    Point3d endpoint = startpoint + Vector3d.YAxis * Lo;
+
+            //    straightPoints.Add(startpoint);
+            //    straightPoints.Add(endpoint);
+
+            //    straightLines[i] = new Line(startpoint, endpoint);
+            //    string lengthval = Lo.ToString("N1");
+            //    unstressedValues.Add(lengthval);
+            //}
 
 
 
