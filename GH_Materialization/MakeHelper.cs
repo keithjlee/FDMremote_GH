@@ -66,6 +66,7 @@ namespace FDMremote.GH_Materialization
         List<string> unstressedValues;
         List<(string, string)> edgeIDs;
         List<(System.Drawing.Color, System.Drawing.Color)> edgecolors;
+        List<double> edgeLengths;
 
         //default colours
         readonly System.Drawing.Color b1 = System.Drawing.Color.FromArgb(0, 79, 235);
@@ -664,6 +665,7 @@ to Node {endnode}";
             edgecolors = new List<(System.Drawing.Color, System.Drawing.Color)>();
             edgeLines = new Line[network.Ne];
             flatLines = new Line[network.Ne];
+            edgeLengths = new List<double>();
 
             //generate blank list of point IDs
             for (int i = 0; i < network.Points.Count; i++)
@@ -707,6 +709,7 @@ to Node {endnode}";
 
                 edgeIDs.Add((pointIDs[istart], pointIDs[iend]));
                 edgecolors.Add((colors[istart], colors[iend]));
+                edgeLengths.Add(edge.GetLength());
 
 
                 Point3d startpoint = points[istart];
@@ -754,7 +757,7 @@ to Node {endnode}";
                 double q = network.ForceDensities[i];
                 Curve edge = network.Curves[i];
 
-                double Lf = edge.GetLength();
+                double Lf = edgeLengths[i];
 
                 double Lo = (Lf * E * A) / (q * Lf + E * A);
                 unstressedLengths.Add(Lo);
@@ -788,6 +791,8 @@ to Node {endnode}";
                 string lengthval = Lo.ToString("N1");
                 unstressedValues.Add(lengthval);
             }
+
+
 
         }
 
