@@ -40,6 +40,9 @@ namespace FDMremote.GH_Analysis
         readonly System.Drawing.Color green = System.Drawing.Color.FromArgb(71, 181, 116);
         readonly System.Drawing.Color red = System.Drawing.Color.FromArgb(150, 235, 52, 73);
 
+        //double minprop;
+        //double maxprop;
+
 
         /// <summary>
         /// Initializes a new instance of the Visualize class.
@@ -123,12 +126,12 @@ namespace FDMremote.GH_Analysis
             externalforces = LoadMaker(network.Points, network.N, loads, scale);
             edges = ToLines(network.Curves);
             reactionforces = ReactionMaker(Solver.Reactions(network), network.Points, network.F, scale);
-            
+
             //element-wise values
             if (prop == 0)
             {
                 property = Solver.Forces(network.Curves, network.ForceDensities);
-                
+
                 var propabs = property.Select(x => Math.Abs(x)).ToList();
 
                 SetGradient(propabs.Max());
@@ -136,10 +139,32 @@ namespace FDMremote.GH_Analysis
             else if (prop == 1)
             {
                 property = network.ForceDensities;
-                
+
                 var propabs = property.Select(x => Math.Abs(x)).ToList();
                 SetGradient(propabs.Max());
             }
+
+            //minprop = 0;
+            //maxprop = 0;
+
+            //if (prop == 0)
+            //{
+            //    property = Solver.Forces(network.Curves, network.ForceDensities);
+
+            //    minprop = property.Min();
+            //    maxprop = property.Max();
+
+
+            //}
+            //else if (prop == 1)
+            //{
+            //    property = network.ForceDensities;
+
+            //    minprop = property.Min();
+            //    minprop = property.Max();
+            //}
+
+            //GradientMaker();
         }
 
         public override BoundingBox ClippingBox
@@ -195,6 +220,54 @@ namespace FDMremote.GH_Analysis
         //    gradient.AddGrip(max, c1);
 
         //    return gradient;
+        //}
+
+        //public void GradientMaker()
+        //{
+        //    int signmin = Math.Sign(minprop);
+        //    int signmax = Math.Sign(maxprop);
+
+        //    if (signmax <= 0)
+        //    {
+        //        grad = new GH_Gradient();
+        //        grad.AddGrip(minprop, c0);
+        //        grad.AddGrip(maxprop, cmed);
+        //    }
+        //    else if (signmin < 0 && signmax > 0)
+        //    {
+        //        grad = new GH_Gradient();
+        //        grad.AddGrip(minprop, c0);
+        //        grad.AddGrip(0, cmed);
+        //        grad.AddGrip(maxprop, c1);
+        //    }
+        //    else if (signmin >= 0)
+        //    {
+        //        grad = new GH_Gradient();
+        //        grad.AddGrip(0.0, cmed);
+        //        grad.AddGrip(maxprop, c1);
+        //    }
+        //    else
+        //    {
+        //        var minabs = Math.Abs(minprop);
+        //        var maxabs = Math.Abs(maxprop);
+
+        //        if (minabs < maxabs)
+        //        {
+        //            grad = new GH_Gradient();
+        //            grad.AddGrip(-maxabs, c0);
+        //            grad.AddGrip(0, cmed);
+        //            grad.AddGrip(maxabs, c1);
+        //        }
+        //        else
+        //        {
+        //            grad = new GH_Gradient();
+        //            grad.AddGrip(-minabs, c0);
+        //            grad.AddGrip(0, cmed);
+        //            grad.AddGrip(minabs, c1);
+        //        }
+        //    }
+
+
         //}
 
         public void SetGradient(double max)
