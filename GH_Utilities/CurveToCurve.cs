@@ -13,6 +13,7 @@ namespace FDMremote.GH_Analysis
         System.Drawing.Color col;
         int thickness;
         bool show;
+        int index;
 
         /// <summary>
         /// Initializes a new instance of the CurveToCurve class.
@@ -34,6 +35,7 @@ namespace FDMremote.GH_Analysis
             pManager.AddColourParameter("Line Colour", "Colour", "Colour of line", GH_ParamAccess.item, System.Drawing.Color.SlateGray);
             pManager.AddIntegerParameter("Line Thickness", "Weight", "Weight of lines", GH_ParamAccess.item, 2);
             pManager.AddBooleanParameter("Show", "Show", "Show assignments", GH_ParamAccess.item, true);
+            pManager.AddIntegerParameter("Indexer", "Indexer", "Specific curve index", GH_ParamAccess.item, -1);
         }
 
         /// <summary>
@@ -66,13 +68,29 @@ namespace FDMremote.GH_Analysis
             DA.GetData(2, ref col);
             DA.GetData(3, ref thickness);
             DA.GetData(4, ref show);
+            DA.GetData(5, ref index);
+
+            if (index >= fdm1.Ne)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Index greater than total number of elements");
+            }
         }
 
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
             base.DrawViewportWires(args);
 
-            if (show) args.Display.DrawLines(lines, col, thickness);
+            if (show)
+            {
+                if (index == -1)
+                {
+                    args.Display.DrawLines(lines, col, thickness);
+                }
+                else
+                {
+                    args.Display.DrawLine(lines[index], col, thickness);
+                }
+            }  
 
         }
 
