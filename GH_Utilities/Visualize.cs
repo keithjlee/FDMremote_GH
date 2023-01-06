@@ -32,6 +32,7 @@ namespace FDMremote.GH_Analysis
         bool react;
         int prop;
         bool show;
+        Network network;
 
         //default colours
         readonly System.Drawing.Color lightgray = System.Drawing.Color.FromArgb(230, 231, 232);
@@ -96,7 +97,7 @@ namespace FDMremote.GH_Analysis
         {
             ClearData();
             //Initialize
-            Network network = new Network();
+            network = new Network();
             List<Vector3d> loads = new List<Vector3d>();
             double scale = 1.0;
             c0 = pink; // min colour (light gray)
@@ -131,47 +132,27 @@ namespace FDMremote.GH_Analysis
             if (prop == 0)
             {
                 property = Solver.Forces(network.Curves, network.ForceDensities);
+                GradientMaker(property);
+                //var propabs = property.Select(x => Math.Abs(x)).ToList();
 
-                var propabs = property.Select(x => Math.Abs(x)).ToList();
-
-                SetGradient(propabs.Max());
+                //SetGradient(propabs.Max());
             }
             else if (prop == 1)
             {
                 property = network.ForceDensities;
+                GradientMaker(property);
 
-                var propabs = property.Select(x => Math.Abs(x)).ToList();
-                SetGradient(propabs.Max());
+                //var propabs = property.Select(x => Math.Abs(x)).ToList();
+                //SetGradient(propabs.Max());
             }
 
-            //minprop = 0;
-            //maxprop = 0;
-
-            //if (prop == 0)
-            //{
-            //    property = Solver.Forces(network.Curves, network.ForceDensities);
-
-            //    minprop = property.Min();
-            //    maxprop = property.Max();
-
-
-            //}
-            //else if (prop == 1)
-            //{
-            //    property = network.ForceDensities;
-
-            //    minprop = property.Min();
-            //    minprop = property.Max();
-            //}
-
-            //GradientMaker();
         }
 
         public override BoundingBox ClippingBox
         {
             get
             {
-                BoundingBox bb = new BoundingBox();
+                BoundingBox bb = new BoundingBox(network.Points);
                 for (int i = 0; i < externalforces.Length; i++) bb.Union(externalforces[i].BoundingBox);
                 for (int i = 0; i < reactionforces.Length; i++) bb.Union(reactionforces[i].BoundingBox);
 
@@ -222,53 +203,39 @@ namespace FDMremote.GH_Analysis
         //    return gradient;
         //}
 
-        //public void GradientMaker()
-        //{
-        //    int signmin = Math.Sign(minprop);
-        //    int signmax = Math.Sign(maxprop);
+        public void GradientMaker(List<double> property)
+        {
+            double minprop = property.Min();
+            double maxprop = property.Max();
 
-        //    if (signmax <= 0)
-        //    {
-        //        grad = new GH_Gradient();
-        //        grad.AddGrip(minprop, c0);
-        //        grad.AddGrip(maxprop, cmed);
-        //    }
-        //    else if (signmin < 0 && signmax > 0)
-        //    {
-        //        grad = new GH_Gradient();
-        //        grad.AddGrip(minprop, c0);
-        //        grad.AddGrip(0, cmed);
-        //        grad.AddGrip(maxprop, c1);
-        //    }
-        //    else if (signmin >= 0)
-        //    {
-        //        grad = new GH_Gradient();
-        //        grad.AddGrip(0.0, cmed);
-        //        grad.AddGrip(maxprop, c1);
-        //    }
-        //    else
-        //    {
-        //        var minabs = Math.Abs(minprop);
-        //        var maxabs = Math.Abs(maxprop);
+            int signmin = Math.Sign(minprop);
+            int signmax = Math.Sign(maxprop);
 
-        //        if (minabs < maxabs)
-        //        {
-        //            grad = new GH_Gradient();
-        //            grad.AddGrip(-maxabs, c0);
-        //            grad.AddGrip(0, cmed);
-        //            grad.AddGrip(maxabs, c1);
-        //        }
-        //        else
-        //        {
-        //            grad = new GH_Gradient();
-        //            grad.AddGrip(-minabs, c0);
-        //            grad.AddGrip(0, cmed);
-        //            grad.AddGrip(minabs, c1);
-        //        }
-        //    }
+            //all data is negative
+            if (signmin <= 0 && signmax <= 0)
+            {
+                grad = new GH_Gradient();
+                grad.AddGrip(minprop, c0);
+                grad.AddGrip(0, cmed);
+            }
+            //negative and positive values
+            else if (signmin <= 0 && signmax >= 0)
+            {
+                grad = new GH_Gradient();
+                grad.AddGrip(minprop, c0);
+                grad.AddGrip(0, cmed);
+                grad.AddGrip(maxprop, c1);
+            }
+            //all positive
+            else
+            {
+                grad = new GH_Gradient();
+                grad.AddGrip(0, cmed);
+                grad.AddGrip(maxprop, c1);
+            }
 
 
-        //}
+        }
 
         public void SetGradient(double max)
         {
