@@ -13,9 +13,9 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectivePerformance class.
         /// </summary>
         public ObjectivePerformance()
-          : base("Performance", "FL",
+          : base("StructuralPerformance", "OBJFL",
               "Minimize sum(Force x Length)",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 

@@ -13,9 +13,9 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveMaxLength class.
         /// </summary>
         public ObjectiveMaxLength()
-          : base("Maximum Length", "OBJMaxLength",
+          : base("MaximumLength", "OBJMaxLength",
               "Penalizes edge lengths above threshold",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 

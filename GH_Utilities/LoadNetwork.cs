@@ -21,7 +21,7 @@ namespace FDMremote.GH_Utilities
         /// Initializes a new instance of the LoadNetwork class.
         /// </summary>
         public LoadNetwork()
-          : base("Load Network", "Load",
+          : base("LoadNetwork", "Load",
               "Load an FDM network .json file",
               "FDMremote", "Utilities")
         {

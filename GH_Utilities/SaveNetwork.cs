@@ -30,7 +30,7 @@ namespace FDMremote.GH_Utilities
         /// Initializes a new instance of the SaveNetwork class.
         /// </summary>
         public SaveNetwork()
-          : base("Freeze Network", "Freeze",
+          : base("FreezeNetwork", "Freeze",
               "Save/freeze a network",
               "FDMremote", "Utilities")
         {

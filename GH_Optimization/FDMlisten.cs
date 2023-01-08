@@ -66,7 +66,7 @@ namespace FDMremote.GH_Optimization
         /// Initializes a new instance of the Optimizereceive class.
         /// </summary>
         public FDMlisten()
-          : base("Remote Listen", "FDMlisten",
+          : base("RemoteListen", "FDMlisten",
               "Receive data from server; Bengesht design",
               "FDMremote", "Optimization")
         {

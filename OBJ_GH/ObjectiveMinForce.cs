@@ -13,9 +13,9 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveMinForce class.
         /// </summary>
         public ObjectiveMinForce()
-          : base("Minimum Force", "OBJMinForce",
+          : base("MinimumForce", "OBJMinForce",
               "Penalizes force values below threshold",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 

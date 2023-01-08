@@ -13,9 +13,9 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveMaxForce class.
         /// </summary>
         public ObjectiveMaxForce()
-          : base("Maximum Force", "OBJMaxForce",
+          : base("MaximumForce", "OBJMaxForce",
               "Penalizes force values above threshold",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 

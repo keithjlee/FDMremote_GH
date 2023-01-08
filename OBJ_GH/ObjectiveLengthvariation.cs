@@ -13,9 +13,9 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveLengthvariation class.
         /// </summary>
         public ObjectiveLengthvariation()
-          : base("Length Variation", "OBJLength",
+          : base("LengthVariation", "OBJLength",
               "Minimize maximum(lengths) - minimum(lengths)",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 

@@ -23,7 +23,7 @@ namespace FDMremote.GH_Utilities
         /// Initializes a new instance of the UpdateCurves class.
         /// </summary>
         public UpdateCurves()
-          : base("Update Geometry", "Update",
+          : base("UpdateCurves", "Update",
               "Match drawn network to target solved network",
               "FDMremote", "Utilities")
         {

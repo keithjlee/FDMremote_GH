@@ -24,7 +24,7 @@ namespace FDMremote.GH_Optimization
         /// Initializes a new instance of the Optimize class.
         /// </summary>
         public FDMsend()
-          : base("Remote Send", "FDMsend",
+          : base("RemoteSend", "FDMsend",
               "Send data to server; Bengesht design",
               "FDMremote", "Optimization")
         {

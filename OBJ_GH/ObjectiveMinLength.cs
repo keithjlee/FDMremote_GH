@@ -13,9 +13,9 @@ namespace FDMremote.OBJ_GH
         /// Initializes a new instance of the ObjectiveMinLength class.
         /// </summary>
         public ObjectiveMinLength()
-          : base("Minimum Length", "OBJMinLength",
+          : base("MinimumLength", "OBJMinLength",
               "Penalizes edge lengths below threshold",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 

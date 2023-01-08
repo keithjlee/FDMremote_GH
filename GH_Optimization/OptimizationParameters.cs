@@ -20,7 +20,7 @@ namespace FDMremote.GH_Optimization
         /// Initializes a new instance of the OptimizationParameters class.
         /// </summary>
         public OptimizationParameters()
-          : base("Optimization Parameters", "Params",
+          : base("OptimizationParameters", "Params",
               "Parameters for optimization",
               "FDMremote", "Optimization")
         {

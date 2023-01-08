@@ -24,7 +24,7 @@ namespace FDMremote.GH_Optimization
         /// Initializes a new instance of the WsStart class.
         /// </summary>
         public FDMstart()
-          : base("Remote Start", "FDMstart",
+          : base("RemoteStart", "FDMstart",
               "Start client-server connection; Bengesht design, Icon by ookijasa (Noun Project)",
               "FDMremote", "Optimization")
         {

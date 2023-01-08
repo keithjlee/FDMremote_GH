@@ -42,7 +42,7 @@ namespace FDMremote.GH_Design.Experimental
         /// Initializes a new instance of the CtrlSurf class.
         /// </summary>
         public CtrlSurfPoint()
-          : base("Point-value Control Surface", "CtrlSurfP",
+          : base("ControlSurfaceP", "CtrlSurfP",
               "Provides reduced-dimension values for free nodes based on NURBs control surface",
               "FDMremote", "Experimental")
         {

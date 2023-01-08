@@ -24,7 +24,7 @@ namespace FDMremote.GH_Utilities
         /// Initializes a new instance of the Tagger class.
         /// </summary>
         public Tagger()
-          : base("Element Tagger", "Tagger",
+          : base("ElementTagger", "Tagger",
               "Tagged information about elements",
               "FDMremote", "Utilities")
         {

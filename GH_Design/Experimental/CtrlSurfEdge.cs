@@ -46,7 +46,7 @@ namespace FDMremote.GH_Design.Experimental
         /// Initializes a new instance of the CtrlSurf class.
         /// </summary>
         public CtrlSurfEdge()
-          : base("Edge-value Control Surface", "CtrlSurfQ",
+          : base("ControlSurfaceQ", "CtrlSurfQ",
               "Provides reduced-dimension values for network edges based on NURBs control surface",
               "FDMremote", "Experimental")
         {

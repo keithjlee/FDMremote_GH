@@ -49,7 +49,7 @@ namespace FDMremote.GH_Analysis
         /// Initializes a new instance of the Visualize class.
         /// </summary>
         public Visualize()
-          : base("Visualize Network", "Visualize",
+          : base("VisualizeNetwork", "Visualize",
               "Visualize a FDM network",
               "FDMremote", "Utilities")
         {

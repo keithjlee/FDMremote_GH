@@ -15,7 +15,7 @@ namespace FDMremote.OBJ_GH
         public ObjectiveTarget()
           : base("Target", "OBJTarget",
               "Minimize the deviation from starting nodal positions",
-              "FDMremote", "Objective Functions")
+              "FDMremote", "ObjectiveFunctions")
         {
         }
 
