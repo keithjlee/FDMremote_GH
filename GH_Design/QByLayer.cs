@@ -6,7 +6,7 @@ using Grasshopper.Kernel;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
-namespace FDMremote.GH_Design.Experimental
+namespace FDMremote.GH_Design
 {
     public class QByLayer : GH_Component
     {
@@ -16,14 +16,14 @@ namespace FDMremote.GH_Design.Experimental
         public QByLayer()
           : base("QByLayer", "LayerQ",
               "Assign a force density value per layer",
-              "FDMremote", "Experimental")
+              "FDMremote", "Design")
         {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             IGH_Param param = new Grasshopper.Kernel.Parameters.Param_Guid();
             pManager.AddParameter(param, "Edge GUIDs", "GUIDs", "GUIDs of input network edges", GH_ParamAccess.list);
@@ -35,7 +35,7 @@ namespace FDMremote.GH_Design.Experimental
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddNumberParameter("ForceDensities", "Q", "Force densities of network edges", GH_ParamAccess.list);
         }
@@ -51,14 +51,14 @@ namespace FDMremote.GH_Design.Experimental
             List<double> values = new List<double>();
             double def = 0.0;
 
-            if (!DA.GetDataList(0, guids)) return ;
-            if (!DA.GetDataList(1, names)) return ;
-            if (!DA.GetDataList(2, values)) return ;
+            if (!DA.GetDataList(0, guids)) return;
+            if (!DA.GetDataList(1, names)) return;
+            if (!DA.GetDataList(2, values)) return;
             DA.GetData(3, ref def);
 
             if (names.Count != values.Count)
             {
-                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Length of layer names must equal length of values");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Length of layer names must equal length of values");
             }
 
             //rhino document
@@ -70,7 +70,7 @@ namespace FDMremote.GH_Design.Experimental
             for (int i = 0; i < names.Count; i++)
             {
                 //select all in layer
-                Rhino.DocObjects.RhinoObject[] rhobjs = doc.Objects.FindByLayer(names[i]);
+                RhinoObject[] rhobjs = doc.Objects.FindByLayer(names[i]);
 
                 //select q value
                 double q = values[i];
@@ -79,7 +79,7 @@ namespace FDMremote.GH_Design.Experimental
                 foreach (RhinoObject obj in rhobjs)
                 {
                     Guid id = obj.Id;
-                    
+
                     int index = guids.IndexOf(id);
 
                     outQ[index] = q;
@@ -92,15 +92,7 @@ namespace FDMremote.GH_Design.Experimental
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon
-        {
-            get
-            {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
-            }
-        }
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.Qbylayer;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.

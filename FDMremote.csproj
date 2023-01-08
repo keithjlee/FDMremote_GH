@@ -107,6 +107,9 @@
     <None Update="Resources\performance.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Qbylayer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\send.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
