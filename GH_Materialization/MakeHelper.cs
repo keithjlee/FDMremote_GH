@@ -10,6 +10,7 @@ using System.Linq;
 using Grasshopper.GUI.Gradient;
 using System.Runtime.InteropServices;
 using FDMremote.Properties;
+using Rhino;
 
 namespace FDMremote.GH_Materialization
 {
@@ -884,3 +885,4 @@ to Node {endnode}";
         }
     }
 }
+
