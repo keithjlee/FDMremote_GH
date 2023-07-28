@@ -59,6 +59,21 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="eigen_core">
+      <HintPath>..\EigenCore\src\native\x64-lib\eigen_core.dll</HintPath>
+    </Reference>
+    <Reference Include="EigenCore">
+      <HintPath>..\EigenCore\src\netcore\EigenCore\bin\Debug\net48\EigenCore.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>..\EigenCore\src\netcore\EigenCore\bin\Debug\net48\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>..\EigenCore\src\netcore\EigenCore\bin\Debug\net48\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\EigenCore\src\netcore\EigenCore\bin\Debug\net48\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   

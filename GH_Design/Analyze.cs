@@ -8,6 +8,7 @@ using FDMremote.Analysis;
 using Newtonsoft.Json;
 using System.IO;
 using MathNet.Numerics.LinearAlgebra;
+using EigenCore.Core.Dense;
 
 namespace FDMremote.GH_Design
 {
@@ -60,11 +61,11 @@ namespace FDMremote.GH_Design
             }
 
             //analysis
-            FDMproblem prob = new FDMproblem(fdmNetwork);
-            Matrix<double> P = Solver.PMaker(loads, fdmNetwork.N);
+            FDMproblem2 prob = new FDMproblem2(fdmNetwork);
+            MatrixXD P = Solver2.PMaker(loads, fdmNetwork.N);
 
             //solving
-            Network fdmSolved = Solver.SolvedNetwork(prob, P);
+            Network fdmSolved = Solver2.SolvedNetwork(prob, P);
 
             //return
             DA.SetData(0, fdmSolved);

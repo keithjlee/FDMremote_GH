@@ -9,10 +9,13 @@ using MathNet.Numerics.LinearAlgebra;
 using FDMremote.Utilities;
 using Rhino.Collections;
 using EigenCore;
+using EigenCore.Core.Dense;
+using EigenCore.Core.Sparse;
+using EigenCore.Core.Sparse.LinearAlgebra;
 
 namespace FDMremote.Analysis
 {
-    internal class Solver
+    internal class Solver2
     {
         /// <summary>
         /// Linear solve for new positions
@@ -20,7 +23,7 @@ namespace FDMremote.Analysis
         /// <param name="fdm"></param>
         /// <param name="P"></param>
         /// <returns></returns>
-        public static Matrix<double> Solve(FDMproblem fdm, Matrix<double> P)
+        public static Matrix<double> Solve(FDMproblem2 fdm, MatrixXD P)
         {
             // extract variables
             var Cn = fdm.Cn;
@@ -28,11 +31,22 @@ namespace FDMremote.Analysis
             var XYZf = fdm.XYZf;
             var Q = fdm.Q;
 
-            var A = Cn.TransposeThisAndMultiply(Q) * Cn; // LHS
-            var b = P - (Cn.TransposeThisAndMultiply(Q) * Cf * XYZf); // RHS
+            var A = Cn.Transpose().Mult(Q).Mult(Cn); // LHS
+            var b = P.Minus(Cn.Transpose().Mult(Q).Mult(Cf).ToDense().Mult(XYZf)); // RHS
 
-            //return A.Cholesky().Solve(b);
-            return A.LU().Solve(b);
+
+            var solX = A.DirectSolve(b.Col(0), DirectSolverType.SparseLU);
+            var solY = A.DirectSolve(b.Col(1), DirectSolverType.SparseLU);
+            var solZ = A.DirectSolve(b.Col(2), DirectSolverType.SparseLU);
+
+            List<double[]> solution = new List<double[]>();
+
+            for (int i = 0; i < fdm.FDMnetwork.Nn; i++)
+            {
+                solution.Add(new double[] {solX.Get(i), solY.Get(i), solZ.Get(i) });
+            }
+
+            return Matrix<double>.Build.DenseOfRowArrays(solution);
         }
 
         /// <summary>
@@ -40,7 +54,7 @@ namespace FDMremote.Analysis
         /// </summary>
         /// <param name="fdm"></param>
         /// <returns></returns>
-        public static Network SolvedNetwork(FDMproblem fdm, Matrix<double> P)
+        public static Network SolvedNetwork(FDMproblem2 fdm, MatrixXD P)
         {
             // solve for new positions
             var newPositions = Solve(fdm, P);
@@ -88,7 +102,7 @@ namespace FDMremote.Analysis
         /// <param name="fdm"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        private static List<Curve> NewCurves(FDMproblem fdm, List<Point3d> points)
+        private static List<Curve> NewCurves(FDMproblem2 fdm, List<Point3d> points)
         {
             // make curves
             List<Curve> curves = new List<Curve>();
@@ -132,7 +146,7 @@ namespace FDMremote.Analysis
         /// <param name="fdm"></param>
         /// <param name="xyzN"></param>
         /// <returns></returns>
-        private static List<Point3d> NewPoints(FDMproblem fdm, Matrix<double> xyzN)
+        private static List<Point3d> NewPoints(FDMproblem2 fdm, Matrix<double> xyzN)
         {
             //fdm is the FDMproblem under analysis
             //xyzN is the new free positions from Analysis.Solve()
@@ -172,18 +186,29 @@ namespace FDMremote.Analysis
         /// </summary>
         /// <param name="FDMnetwork"></param>
         /// <returns></returns>
-        public static Matrix<double> GetC(Network FDMnetwork)
+        public static SparseMatrixD GetC(Network FDMnetwork)
         {
-            // Initialize
-            var C = Matrix<double>.Build.Sparse(FDMnetwork.Ne, FDMnetwork.Nn);
 
-            // Populate
+            var connectivity = new (int, int, double)[2 * FDMnetwork.Ne];
+
+            int j = 0;
+
             for (int i = 0; i < FDMnetwork.Ne; i++)
             {
+
                 var index = FDMnetwork.Indices[i];
-                C[i, index[0]] = -1;
-                C[i, index[1]] = 1;
+
+                connectivity[j] = (i, index[0], -1);
+
+                j += 1;
+
+                connectivity[j] = (i, index[1], 1);
+
+                j += 1;
+
             }
+
+            SparseMatrixD C = new SparseMatrixD(connectivity, FDMnetwork.Ne, FDMnetwork.Nn);
 
             return C;
 
@@ -237,17 +262,16 @@ namespace FDMremote.Analysis
             //connectivity matrix
             var C = GetC(network);
             var xyz_list = Point2Array(network.Points); 
-            var xyz_matrix = Matrix<double>.Build.DenseOfRowArrays(xyz_list);
+            var xyz_matrix = new MatrixXD(xyz_list.ToArray());
 
             //elemental vectors (per row)
-            var CXYZ = C * xyz_matrix;
+            var CXYZ = C.ToDense().Mult(xyz_matrix);
 
             //get member lengths
             List<double> lengths = new List<double>();
-            for (int i = 0; i < CXYZ.RowCount; i++)
+            for (int i = 0; i < network.Ne; i++)
             {
-                var length = CXYZ.Row(i).L2Norm();
-                lengths.Add(length);
+                lengths.Add(CXYZ.Row(i).Norm());
             }
 
             //F = q * l
@@ -288,7 +312,7 @@ namespace FDMremote.Analysis
         /// <param name="load"></param>
         /// <param name="N"></param>
         /// <returns></returns>
-        public static Matrix<double> PMaker(Vector3d load, List<int> N)
+        public static MatrixXD PMaker(Vector3d load, List<int> N)
         {
             double[] pArray = new double[] { load.X, load.Y, load.Z };
             List<double[]> pn = new List<double[]>();
@@ -298,10 +322,10 @@ namespace FDMremote.Analysis
                 pn.Add(pArray);
             }
 
-            return Matrix<double>.Build.DenseOfRowArrays(pn);
+            return new MatrixXD(pn.ToArray());
         }
 
-        public static Matrix<double> PMaker(List<Vector3d> loads, List<int> N)
+        public static MatrixXD PMaker(List<Vector3d> loads, List<int> N)
         {
             if (loads.Count != N.Count && loads.Count != 1) throw new ArgumentException("Length of force vectors must be 1 or match length of free nodes.");
 
@@ -319,7 +343,7 @@ namespace FDMremote.Analysis
                 }
 
                 //create Pn matrix
-                return Matrix<double>.Build.DenseOfRowArrays(pn);
+                return new MatrixXD(pn.ToArray());
             }
         }
 

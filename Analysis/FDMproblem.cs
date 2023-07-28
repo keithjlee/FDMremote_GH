@@ -7,6 +7,8 @@ using Rhino.Geometry;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using FDMremote.Utilities;
+using EigenCore;
+using EigenCore.Core.Dense;
 
 namespace FDMremote.Analysis
 {
@@ -52,6 +54,7 @@ namespace FDMremote.Analysis
                 int index = FDMnetwork.F[i];
                 xyzf.Add(FDMnetwork.XYZ[index]);
             }
+
 
             //create XYZf matrix
             XYZf = Matrix<double>.Build.DenseOfRowArrays(xyzf);
