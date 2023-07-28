@@ -237,7 +237,7 @@ namespace FDMremote.Utilities
         /// <returns></returns>
         public bool AnchorCheck()
         {
-            if (this.Anchors.Count < 3) return false;
+            if (this.Anchors.Count < 2) return false;
             else return true;
         }
 

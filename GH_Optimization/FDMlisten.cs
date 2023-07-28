@@ -169,20 +169,26 @@ namespace FDMremote.GH_Optimization
         private void ParseMsg(string msg)
         {
             var receiver = JsonConvert.DeserializeObject<Receiver>(msg);
-            if (receiver == null) return;
+            if (receiver == null)
+            {
+                solvednetwork = network;
+            }
+            else
+            {
+                //update
+                finished = receiver.Finished;
+                q = receiver.Q;
+                loss = receiver.Loss;
+                iter = receiver.Iter;
+                trace = receiver.Losstrace;
+                x = receiver.X;
+                y = receiver.Y;
+                z = receiver.Z;
+                curves = CurveMaker(indices, x, y, z);
 
-            //update
-            finished = receiver.Finished;
-            q = receiver.Q;
-            loss = receiver.Loss;
-            iter = receiver.Iter;
-            trace = receiver.Losstrace;
-            x = receiver.X;
-            y = receiver.Y;
-            z = receiver.Z;
-            curves = CurveMaker(indices, x, y, z);
-
-            solvednetwork = new Network(anchors, curves, q, tolerance);
+                solvednetwork = new Network(anchors, curves, q, tolerance);
+            }
+            
         }
 
         private List<Curve> CurveMaker(List<int[]> indices, List<double> x, List<double> y, List<double> z)
