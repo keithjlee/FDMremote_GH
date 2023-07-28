@@ -10,10 +10,18 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <Compile Remove="GH_Design\Experimental\AnalyzeEigen.cs" />
-    <Compile Remove="GH_Design\Experimental\EdgeCollector.cs" />
-    <Compile Remove="GH_Design\Experimental\Topologize.cs" />
-    <Compile Remove="GH_Design\Experimental\Update_exp.cs" />
+    <Compile Remove="Experimental\**" />
+    <Compile Remove="GH_Design\Experimental\**" />
+    <Compile Remove="Scratch\**" />
+    <EmbeddedResource Remove="Experimental\**" />
+    <EmbeddedResource Remove="GH_Design\Experimental\**" />
+    <EmbeddedResource Remove="Scratch\**" />
+    <None Remove="Experimental\**" />
+    <None Remove="GH_Design\Experimental\**" />
+    <None Remove="Scratch\**" />
+  </ItemGroup>
+	
+  <ItemGroup>
     <Compile Remove="GH_Design\PByLayer.cs" />
     <Compile Remove="GH_Optimization\receive_OLD.cs" />
     <Compile Remove="GH_Optimization\send_OLD.cs" />
@@ -47,9 +55,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Folder Include="Experimental\" />
     <Folder Include="Build\" />
-    <Folder Include="Scratch\" />
   </ItemGroup>
   
   <ItemGroup>
@@ -141,6 +147,10 @@
     <StartProgram>C:\Program Files\Rhino 7\System\Rhino.exe</StartProgram>
     <StartArguments></StartArguments>
     <StartAction>Program</StartAction>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
 </Project>

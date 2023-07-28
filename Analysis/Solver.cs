@@ -30,7 +30,8 @@ namespace FDMremote.Analysis
             var A = Cn.TransposeThisAndMultiply(Q) * Cn; // LHS
             var b = P - (Cn.TransposeThisAndMultiply(Q) * Cf * XYZf); // RHS
 
-            return A.Cholesky().Solve(b);
+            //return A.Cholesky().Solve(b);
+            return A.LU().Solve(b);
         }
 
         /// <summary>

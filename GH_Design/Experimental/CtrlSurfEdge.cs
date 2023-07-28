@@ -349,7 +349,7 @@ namespace FDMremote.GH_Design.Experimental
             foreach (Curve curve in curves)
             {
                 var midpoint = curve.PointAtNormalizedLength(0.5);
-                Vector3d ray = -2 * height * Vector3d.ZAxis;
+                Vector3d ray = -5 * height * Vector3d.ZAxis;
                 Line line = new Line(midpoint, ray);
 
                 var inter = Intersection.CurveSurface(line.ToNurbsCurve(), surf, 1e-2, 1e-2)[0];
