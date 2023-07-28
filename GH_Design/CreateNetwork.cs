@@ -68,7 +68,7 @@ namespace FDMremote
             //Check sufficent anchor definitions
             if (!fdmNetwork.AnchorCheck())
             {
-                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "For stability, define at least 3 anchor points.");
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "For stability, define at least 2 anchor points.");
                 return ;
             }
 

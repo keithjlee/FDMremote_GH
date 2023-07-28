@@ -8,6 +8,7 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using FDMremote.Utilities;
 using Rhino.Collections;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace FDMremote.Analysis
 {
@@ -27,7 +28,7 @@ namespace FDMremote.Analysis
             var XYZf = fdm.XYZf;
             var Q = fdm.Q;
 
-            var A = Cn.TransposeThisAndMultiply(Q) * Cn; // LHS
+            var A = (SparseMatrix)(Cn.TransposeThisAndMultiply(Q) * Cn); // LHS
             var b = P - (Cn.TransposeThisAndMultiply(Q) * Cf * XYZf); // RHS
 
             //return A.Cholesky().Solve(b);
@@ -171,10 +172,10 @@ namespace FDMremote.Analysis
         /// </summary>
         /// <param name="FDMnetwork"></param>
         /// <returns></returns>
-        public static Matrix<double> GetC(Network FDMnetwork)
+        public static SparseMatrix GetC(Network FDMnetwork)
         {
             // Initialize
-            var C = Matrix<double>.Build.Sparse(FDMnetwork.Ne, FDMnetwork.Nn);
+            var C = new SparseMatrix(FDMnetwork.Ne, FDMnetwork.Nn);
 
             // Populate
             for (int i = 0; i < FDMnetwork.Ne; i++)
